@@ -1,0 +1,1572 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 加速卡单卡对比 · 2026</title>
+<style>
+:root{
+  --bg:#fff; --ink:#11151a; --muted:#6b7280; --faint:#9aa1ac;
+  --line:#e6e8ec; --line-strong:#cdd3dc;
+  --accent:#1d4ed8; --accent-weak:#eef2ff;
+  --grayfill:#c9ced6; --warn:#9a3412;
+  --radius:10px; --wrap:1180px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;
+  font-variant-numeric:tabular-nums;
+}
+[hidden]{display:none!important}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--accent)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 22px}
+.masthead{border-top:3px solid var(--accent);background:#fff}
+.masthead .wrap{padding-top:26px;padding-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+h1{font-size:27px;letter-spacing:-.02em;margin:0 0 6px;font-weight:650}
+.sub{margin:0;color:var(--muted);font-size:13.5px}
+.mast-meta{display:flex;gap:18px;color:var(--faint);font-size:12px;white-space:nowrap}
+.mast-meta b{color:var(--muted);font-weight:600}
+.toolbar{position:sticky;top:0;z-index:30;background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.toolbar-inner{padding-top:12px;padding-bottom:12px;display:flex;flex-direction:column;gap:10px}
+.tb-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.search{flex:1;min-width:250px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-strong);border-radius:7px;padding:0 10px;height:36px;background:#fff}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak)}
+.search svg{width:15px;height:15px;color:var(--faint);flex:none}
+.search input{border:0;outline:0;width:100%;background:transparent;font-size:13.5px}
+.tb-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.field{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.field select{height:32px;border:1px solid var(--line-strong);border-radius:6px;background:#fff;padding:0 6px;font-size:12.5px;color:var(--ink)}
+.filters{gap:18px;font-size:12px}
+.filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.flabel{color:var(--faint);font-size:11px;letter-spacing:.08em}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{height:26px;padding:0 8px;border:1px solid var(--line);background:#fff;border-radius:4px;font-size:12px;color:#3b424c;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.chip:hover{border-color:var(--line-strong)}
+.chip.on{border-color:var(--accent);color:var(--accent);background:var(--accent-weak)}
+.chip .n{color:var(--faint);font-size:10.5px}
+.chip.on .n{color:var(--accent);opacity:.7}
+.switch{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none;white-space:nowrap}
+.switch input{accent-color:var(--accent);margin:0}
+.linkbtn{border:0;background:none;color:var(--muted);font-size:12px;padding:0;text-decoration:underline;text-underline-offset:3px}
+.linkbtn:hover{color:var(--ink)}
+.catalog-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin:22px 0 10px;flex-wrap:wrap}
+.result{margin:0;font-size:13px;color:var(--muted)}
+.result b{color:var(--ink);font-weight:600}
+.hint{margin:0;font-size:12px;color:var(--faint)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:10px}
+.card{position:relative;border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:13px 14px 11px;transition:border-color .14s,background .14s;outline:none;cursor:pointer}
+.card:hover{border-color:var(--line-strong)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--accent-weak);border-color:var(--accent)}
+.card.sel{border-color:var(--accent);background:#fcfdff}
+.card-top{display:flex;align-items:center;gap:7px;margin-bottom:7px;min-height:18px;padding-right:24px}
+.vendor{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.form{border:1px solid var(--line);border-radius:3px;padding:0 5px;font-size:10px;color:var(--faint);line-height:16px;white-space:nowrap}
+.newtag{font-size:10px;color:var(--warn);border:1px solid #f0d9cc;background:#fff8f4;border-radius:3px;padding:0 4px;line-height:15px;white-space:nowrap}
+.pick{position:absolute;right:12px;top:12px;width:17px;height:17px;border:1px solid var(--line-strong);border-radius:50%;display:grid;place-items:center;color:#fff;font-size:10px;line-height:1}
+.card.sel .pick{background:var(--accent);border-color:var(--accent)}
+.card.sel .pick::after{content:"✓";font-size:10px}
+.card h3{margin:0;font-size:16.5px;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.arch{margin:2px 0 11px;font-size:11.5px;color:var(--faint)}
+.specs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.specs div{min-width:0}
+.specs dt{font-size:9.5px;color:var(--faint);letter-spacing:.04em;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.specs dd{margin:0;font-size:14.5px;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+.specs dd span{font-size:9.5px;color:var(--faint);font-weight:400;margin-left:2px}
+.card-foot{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--muted);min-height:18px}
+.card-foot .power{font-weight:600;color:#3b424c;white-space:nowrap}
+.card-foot .cardlink{flex:1;min-width:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--faint)}
+.detail{border:0;background:none;padding:0;font-size:11px;color:var(--accent);white-space:nowrap}
+.detail:hover{text-decoration:underline;text-underline-offset:2px}
+.empty-state{grid-column:1/-1;border:1px solid var(--line);border-radius:10px;padding:40px;text-align:center;color:var(--muted);font-size:13px}
+.compare{margin-top:36px;border-top:1px solid var(--line);padding-top:22px}
+.section-title{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.section-title h2{font-size:18px;margin:0 0 3px;letter-spacing:-.01em}
+.section-title p{margin:0;color:var(--faint);font-size:12px}
+.compare-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ghostbtn{height:30px;padding:0 10px;border:1px solid var(--line-strong);background:#fff;border-radius:5px;font-size:12px;color:#3b424c;white-space:nowrap}
+.ghostbtn:hover{border-color:var(--ink);color:var(--ink)}
+.primarybtn{height:34px;padding:0 14px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:5px;font-size:12.5px;font-weight:550;white-space:nowrap}
+.primarybtn:hover{filter:brightness(1.08)}
+.primarybtn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:12.5px}
+th,td{padding:9px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);white-space:nowrap}
+thead th{background:#fbfbfc;border-bottom:1px solid var(--line-strong);position:relative;vertical-align:bottom}
+.rowhead{position:sticky;left:0;background:#fbfbfc;z-index:2;width:152px;min-width:152px;font-size:11px;color:var(--muted);font-weight:500}
+tbody .rowhead{background:#fff}
+tbody tr:hover td,tbody tr:hover th{background:#fcfcfd}
+tbody tr:hover .rowhead{background:#fcfcfd}
+.colhead{min-width:152px}
+.ch-vendor{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.ch-name{font-size:13px;font-weight:600;color:var(--ink);margin-top:1px;white-space:normal}
+.ch-form{font-size:10px;color:var(--faint);margin-top:2px}
+.ch-remove{position:absolute;right:6px;top:6px;border:0;background:none;color:var(--faint);font-size:14px;line-height:1;padding:2px}
+.ch-remove:hover{color:var(--ink)}
+tr.group th{background:#fafafa;color:var(--faint);font-size:10.5px;letter-spacing:.1em;padding:6px 12px;border-bottom:1px solid var(--line);font-weight:500}
+td.best{color:var(--accent);font-weight:600}
+td.best::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:2px}
+td.wide{white-space:normal;min-width:230px;max-width:290px;color:#3b424c;font-size:12px;line-height:1.5}
+.unit{display:block;font-size:9.5px;color:var(--faint);font-weight:400;letter-spacing:0}
+tr.hide{display:none}
+.table-note{margin:8px 0 0;font-size:11px;color:var(--faint)}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.chart{margin:0;border:1px solid var(--line);border-radius:8px;padding:12px 12px 8px;background:#fff;min-width:0}
+.chart figcaption{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:12px;margin-bottom:4px;flex-wrap:wrap}
+.chart figcaption strong{font-weight:600;font-size:12.5px}
+.chart figcaption span{color:var(--faint);font-size:10.5px}
+.chart svg{display:block;width:100%;height:auto}
+.axis{stroke:var(--line);stroke-width:1}
+.gridline{stroke:#f0f1f4;stroke-width:1}
+.tick{font-size:10px;fill:var(--faint)}
+.axislabel{font-size:10.5px;fill:var(--muted)}
+.pt{fill:var(--grayfill);stroke:#fff;stroke-width:1}
+.pt.sel{fill:var(--accent);stroke:#fff;stroke-width:1.5}
+.ptlabel{font-size:10.5px;fill:#334155;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+.bar{fill:var(--accent);opacity:.85}
+.barrow{font-size:11px;fill:#334155}
+.barval{font-size:10.5px;fill:var(--accent);font-weight:600}
+.empty{font-size:12px;fill:var(--faint)}
+.est{margin-top:36px;border-top:1px solid var(--line);padding-top:22px}
+.est-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(188px,1fr));gap:12px 14px;border:1px solid var(--line);border-radius:8px;padding:14px;background:#fff}
+.ef{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--muted);min-width:0}
+.ef select,.ef input{height:32px;border:1px solid var(--line-strong);border-radius:6px;background:#fff;padding:0 8px;font:inherit;font-size:13px;color:var(--ink);width:100%;min-width:0}
+.ef select:focus,.ef input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak)}
+.ef small{font-size:10px;color:var(--faint)}
+.est-out{display:grid;grid-template-columns:minmax(300px,1fr) minmax(280px,.85fr);gap:12px;margin-top:12px;align-items:start}
+.est-answer{border:1px solid var(--line-strong);border-radius:8px;padding:14px 16px;background:#fff}
+.est-answer .k{font-size:11px;color:var(--muted);margin:0 0 4px}
+.est-big{font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1.15;margin:0}
+.est-big em{font-style:normal;font-size:13px;color:var(--muted);font-weight:400;margin-left:5px}
+.est-line{font-size:12.5px;color:#3b424c;margin:8px 0 0}
+.est-src{font-size:11.5px;color:var(--muted);margin:9px 0 0;line-height:1.6;border-top:1px solid var(--line);padding-top:8px}
+.specs dd .dag{font-style:normal;color:var(--accent);margin-left:2px}
+.est-warn{font-size:11.5px;color:var(--muted);background:#fafafb;border-left:2px solid var(--line-strong);padding:7px 9px;margin:11px 0 0;line-height:1.6}
+.est-sub{font-size:13px;font-weight:600;margin:18px 0 8px}
+tr.est-total td{font-weight:600;color:var(--ink);background:#fbfbfc}
+.est-accent{color:var(--accent);font-weight:600}
+.est-iu{font-size:10px;color:var(--faint);font-weight:400;margin-left:3px}
+#estTable td{white-space:normal}
+#estTable td:nth-child(2){width:58%}
+.notes{margin:36px 0 96px;border-top:1px solid var(--line);padding-top:16px}
+details{border:1px solid var(--line);border-radius:8px;padding:0 14px;background:#fff}
+summary{cursor:pointer;padding:12px 0;font-size:13px;font-weight:550;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";float:right;color:var(--faint)}
+details[open] summary::after{content:"−"}
+.notes-body{padding:0 0 14px;font-size:12px;color:#3b424c;line-height:1.75}
+.notes-body p{margin:0 0 8px}
+.notes-body ul{margin:0 0 10px;padding-left:18px}
+.notes-body li{margin:2px 0}
+.notes-body a{text-decoration:none}
+.notes-body a:hover{text-decoration:underline}
+.notes-body code{font-size:11px;background:#f4f5f7;padding:1px 4px;border-radius:3px}
+.dock{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;width:min(780px,calc(100% - 24px));background:#fff;border:1px solid var(--line-strong);border-radius:10px;box-shadow:0 8px 30px rgba(15,23,42,.12);padding:9px 10px;display:flex;align-items:center;gap:10px}
+.dock-chips{display:flex;gap:5px;flex-wrap:wrap;flex:1;min-width:0}
+.dock-chip{display:inline-flex;align-items:center;gap:4px;height:24px;border:1px solid var(--line);border-radius:4px;padding:0 4px 0 7px;font-size:11px;background:#fff;white-space:nowrap}
+.dock-chip button{border:0;background:none;color:var(--faint);padding:0 2px;font-size:12px;line-height:1}
+.dock-chip button:hover{color:var(--ink)}
+.dock-actions{display:flex;align-items:center;gap:8px;flex:none}
+.dock-count{font-size:11px;color:var(--faint);white-space:nowrap}
+.modal{position:fixed;inset:0;z-index:100;background:rgba(15,23,42,.36);display:grid;place-items:center;padding:20px}
+.modal-panel{width:min(580px,100%);max-height:86vh;overflow:auto;background:#fff;border-radius:12px;border:1px solid var(--line-strong);padding:22px 24px 20px;position:relative}
+.modal-close{position:absolute;right:12px;top:10px;border:0;background:none;font-size:20px;line-height:1;color:var(--faint);padding:4px}
+.modal-close:hover{color:var(--ink)}
+.m-vendor{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.modal h2{font-size:21px;margin:2px 0 2px;letter-spacing:-.02em}
+.m-arch{font-size:12px;color:var(--muted);margin:0 0 14px}
+.m-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 14px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;margin:0 0 14px}
+.m-grid dt{font-size:10px;color:var(--faint);margin-bottom:2px}
+.m-grid dd{margin:0;font-size:14px;font-weight:600}
+.m-grid dd small{font-size:10px;color:var(--faint);font-weight:400;margin-left:2px}
+.m-pos{font-size:13px;color:#3b424c;margin:0 0 10px;line-height:1.6}
+.m-note{font-size:11.5px;color:var(--muted);background:#fafafb;border-left:2px solid var(--line-strong);padding:8px 10px;margin:0 0 12px}
+.m-src{font-size:11px;color:var(--faint);margin:0 0 16px}
+.m-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.m-link{font-size:12px;text-decoration:none}
+.m-link:hover{text-decoration:underline}
+body.locked{overflow:hidden}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:200;background:#11151a;color:#fff;font-size:12px;padding:8px 12px;border-radius:6px;opacity:.96;max-width:calc(100% - 24px);text-align:center}
+@media (max-width:860px){
+  .charts{grid-template-columns:1fr}
+  .est-out{grid-template-columns:1fr}
+  .toolbar{position:static}
+  .masthead .wrap{padding-top:20px;padding-bottom:16px}
+  h1{font-size:22px}
+  .filters{width:100%;gap:6px;flex-direction:column;align-items:stretch}
+  .filter-group{flex-wrap:nowrap;min-width:0;max-width:100%}
+  .chips{flex:1;min-width:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .notes{margin-bottom:120px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+  .dock{flex-wrap:wrap;bottom:10px;padding:8px}
+  .dock-actions{width:100%;justify-content:flex-end}
+  .m-grid{grid-template-columns:repeat(2,1fr)}
+  .rowhead{width:122px;min-width:122px}
+  .colhead{min-width:140px}
+}
+@media (max-width:480px){
+  .grid{grid-template-columns:1fr}
+  .wrap{padding:0 14px}
+  .search{min-width:100%}
+  .tb-right{width:100%;justify-content:space-between}
+  .compare-tools{gap:8px}
+}
+@media print{
+  .toolbar,.dock,.detail,.mast-meta,.charts,.compare-tools,.ch-remove,.notes,.est{display:none!important}
+  .compare{border-top:0;padding-top:0}
+  .masthead{border-top:0}
+  body{font-size:10px}
+  .table-wrap{overflow:visible!important}
+  thead{display:table-header-group}
+  tr{break-inside:avoid}
+  .rowhead{position:static!important}
+  th,td{padding:5px 6px;white-space:normal}
+  .colhead{min-width:0}
+  td.wide{min-width:0;max-width:none}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div>
+      <h1>AI 加速卡单卡对比</h1>
+      <p class="sub">数据中心 GPU / DCU 等算力单卡参数对比 · 算力、显存、互联、功耗、形态</p>
+    </div>
+    <div class="mast-meta">
+      <span id="countTotal">—</span>
+      <span>数据截至 2026-10</span>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar" id="toolbar">
+  <div class="wrap toolbar-inner">
+    <div class="tb-row">
+      <label class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <input id="q" type="search" placeholder="搜索型号 / 厂商 / 架构，按 / 聚焦" autocomplete="off" aria-label="搜索型号、厂商或架构">
+      </label>
+      <div class="tb-right">
+        <label class="field">算力口径
+          <select id="precision" aria-label="算力口径">
+            <option value="fp16">FP16 / BF16</option>
+            <option value="fp8">FP8</option>
+            <option value="fp4">FP4</option>
+            <option value="int8">INT8</option>
+          </select>
+        </label>
+        <label class="field">排序
+          <select id="sort" aria-label="排序方式">
+            <option value="default">厂商 / 代际</option>
+            <option value="compute">算力（所选口径）</option>
+            <option value="mem">显存容量</option>
+            <option value="bw">显存带宽</option>
+            <option value="power">功耗（低到高）</option>
+            <option value="eff">每瓦算力</option>
+            <option value="year">发布年份</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="tb-row filters">
+      <div class="filter-group" data-group="vendor"><span class="flabel">厂商</span><div class="chips" id="vendorChips"></div></div>
+      <div class="filter-group" data-group="form"><span class="flabel">形态</span><div class="chips" id="formChips"></div></div>
+      <div class="filter-group" data-group="scene"><span class="flabel">场景</span><div class="chips" id="sceneChips"></div></div>
+      <div class="filter-group">
+        <span class="flabel">状态</span>
+        <label class="switch"><input type="checkbox" id="includeRamp" checked> 含爬坡新品</label>
+        <button class="linkbtn" id="resetBtn" type="button">重置筛选</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="catalog-head">
+    <p class="result" id="resultCount">—</p>
+    <p class="hint">点击卡片加入对比，最多 6 款</p>
+  </div>
+  <section class="grid" id="grid" aria-live="polite"></section>
+
+  <section class="compare" id="compareSection" hidden>
+    <div class="section-title">
+      <div>
+        <h2>参数对比</h2>
+        <p id="compareSub">—</p>
+      </div>
+      <div class="compare-tools">
+        <div class="chips" id="dimChips" aria-label="对比维度"></div>
+        <label class="switch"><input type="checkbox" id="diffOnly"> 只看差异</label>
+        <button class="ghostbtn" id="exportBtn" type="button">导出 CSV</button>
+        <button class="ghostbtn" id="clearBtn" type="button">清空</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table id="cmpTable"></table></div>
+    <p class="table-note">● 同列最优（至少 2 个可比数值时） · † 由官方稀疏 / 低精度口径折算，或按同代产品规格回推，非官方值 · — 未公开</p>
+    <div class="charts">
+      <figure class="chart">
+        <figcaption><strong>显存容量 × 显存带宽</strong><span>点大小 ≈ 功耗；带宽未公布不显示；蓝色为已选</span></figcaption>
+        <svg id="scatter" viewBox="0 0 560 340" role="img" aria-label="显存容量与显存带宽散点图"></svg>
+      </figure>
+      <figure class="chart">
+        <figcaption><strong id="effTitle">每瓦算力</strong><span>所选精度稠密算力 ÷ 整卡功耗 · 缺值型号不显示</span></figcaption>
+        <svg id="effChart" viewBox="0 0 560 300" role="img" aria-label="每瓦算力条形图"></svg>
+      </figure>
+    </div>
+  </section>
+
+  <section class="est" id="estSection">
+    <div class="section-title">
+      <div>
+        <h2>模型资源估算</h2>
+        <p>收录 2026 年现役主流大模型（Qwen3.8 / DeepSeek-V4 / GLM-5.3 / Kimi K3 / 混元 / MiniMax）的总参数与激活参数，估算训练、微调与推理显存，再换算需要多少张单卡 · 显存口径来自阿里云 PAI《模型所需显存估算》，参数量出处见下方逐条标注</p>
+      </div>
+    </div>
+    <div class="est-form">
+      <label class="ef"><span>模型（总参数 / 激活参数）</span><select id="estModel"></select></label>
+      <label class="ef"><span>场景</span><select id="estScene">
+        <option value="infer">推理部署</option>
+        <option value="full">全参微调</option>
+        <option value="lora">LoRA 微调</option>
+        <option value="qlora8">QLoRA（基座 8bit）</option>
+        <option value="qlora4">QLoRA（基座 4bit）</option>
+      </select></label>
+      <label class="ef" id="estPrecWrap"><span>权重精度</span><select id="estPrec">
+        <option value="2">BF16 / FP16（2 字节）</option>
+        <option value="1">FP8 / INT8（1 字节）</option>
+        <option value="0.5">FP4 / INT4（0.5 字节）</option>
+      </select></label>
+      <label class="ef"><span>序列长度</span><input id="estSeq" type="number" min="128" max="262144" step="128" value="2048"></label>
+      <label class="ef" id="estConcWrap"><span>并发路数</span><input id="estConc" type="number" min="1" max="4096" step="1" value="1"></label>
+      <label class="ef" id="estBatchWrap" hidden><span>Batch Size</span><input id="estBatch" type="number" min="1" max="4096" step="1" value="1"></label>
+      <label class="ef" id="estOptWrap" hidden><span>优化器</span><select id="estOpt">
+        <option value="2">AdamW / Adam（2 份状态）</option>
+        <option value="1">SGD+Momentum / RMSProp（1 份）</option>
+        <option value="0">SGD（无状态）</option>
+      </select></label>
+      <label class="ef"><span>目标单卡</span><select id="estCard"></select></label>
+      <label class="ef"><span>单卡可用比例</span><input id="estUtil" type="number" min="50" max="100" step="5" value="90"><small>扣除框架与碎片</small></label>
+      <label class="ef"><span>整机卡数</span><select id="estNodes">
+        <option value="8">8 卡机</option>
+        <option value="4">4 卡机</option>
+        <option value="2">2 卡机</option>
+        <option value="1">单卡</option>
+      </select></label>
+    </div>
+    <div class="est-out">
+      <div class="table-wrap"><table id="estTable"></table></div>
+      <div class="est-answer" id="estAnswer"></div>
+    </div>
+    <p class="table-note" id="estBasis"></p>
+    <h3 class="est-sub">同一需求在不同单卡上的张数</h3>
+    <div class="table-wrap"><table id="estCmp"></table></div>
+    <p class="table-note">● 与上方参数一致，仅换卡 · ☆ 已加入对比的卡 · 未公布显存的卡不参与估算</p>
+  </section>
+
+  <section class="notes">
+    <details>
+      <summary>口径说明与数据来源</summary>
+      <div class="notes-body">
+        <p><strong>算力口径</strong>：FP16/BF16、FP8、FP4、INT8 均为<strong>稠密（dense）峰值</strong>。厂商标注的稀疏值通常是稠密的 2 倍；标 <code>†</code> 的数值由官方稀疏 / 低精度口径折算，或按同代产品规格回推，<strong>不是官方公布值</strong>，仅用于同表横向比较。</p>
+        <p><strong>显存与带宽</strong>：显存为单卡可用容量（部分型号物料容量略高）；带宽为峰值理论值。</p>
+        <p><strong>功耗</strong>：整卡 TDP / 板卡功耗，不含整机与散热。Rubin 标准版 1800W、增强版 2300W；B300 的 HGX 版本可配置至 1100W。</p>
+        <p><strong>形态</strong>：SXM 为 NVIDIA 模块接口；OAM 为 OCP 加速器模块；PCIe 为独立卡。部分型号同时提供 OAM 与 PCIe 版本，筛选时两边都会计入。</p>
+        <p><strong>可比性</strong>：跨厂商峰值算力不能直接等价。训练更看互联与集群规模，推理更看显存容量 / 带宽与软件栈；实际性能取决于模型、batch、并行策略与框架适配。</p>
+        <p><strong>数据来源</strong>：逐项按厂商官网核对。NVIDIA 取各产品规格页与 HGX 页（L40S 规格页无 FP4 一行，故留空）；AMD 取 Instinct 规格表，并按官方稠密口径分别录入 MI350X、MI355X 与 PCIe 形态的 MI350P、EAM 形态的 MI455X；Intel 取 Gaudi 3 规格页。华为昇腾取 <a href="https://www.hiascend.com/hardware/accelerator-card" target="_blank" rel="noopener">官网加速卡技术规格</a>的逐个 tab：Atlas 150 / 350（同为 Ascend 950PR，只差 84GB 与 112GB）、Atlas 300I A2（32GB / 0.8TB·s 与 64GB / 1.6TB·s 两档）、Atlas 300I Duo（96GB / 48GB 两档）都按官网分档各占一行，<strong>不取中间值</strong>；昇腾 910C 官网无单卡规格页，其显存与功耗仍为媒体口径。平头哥真武系列官方只公布显存、内存带宽与片间互联：<strong>M890、V900 的单卡 FLOPS 未公布，一律留空不用估算值填表</strong>；810E 官网公布 96GB HBM2e 与 2.7TB/s，FP16 120 TFLOPS 为按 M890 回推的估算值，标 <code>†</code>。寒武纪官网仅收录思元 370 / 270 系列，590、690 无任何官方规格页，标注为第三方口径；沐曦官网 C500 页只公布 64GB 显存与最大 350W，算力取自第三方汇总。</p>
+        <p><strong>显存估算</strong>：“模型资源估算”按阿里云 PAI 简易估算法实现——权重按参数量 × 字节、激活与 KV Cache 以“模型显存 10%（batch / 并发 1、序列 2048、2 字节）”为基线线性放大、LoRA 系列可训练参数取总参数 1%、其他开销固定 2 GB。结果为<strong>理论下界</strong>，未包含张量 / 流水并行的切分冗余、激活重算、通信与算子缓冲；实际可跑的最优并行方案与卡数需以框架实测为准。</p>
+        <p><strong>免责声明</strong>：本页用于选型参考，不构成采购建议；价格、供货与地区可用性随时间变化。</p>
+        <ul>
+          <li><a href="https://www.nvidia.com/en-us/data-center/h100/" target="_blank" rel="noopener">NVIDIA H100</a> · <a href="https://www.nvidia.com/en-us/data-center/h200/" target="_blank" rel="noopener">H200</a> · <a href="https://www.nvidia.com/en-us/data-center/dgx-b200/" target="_blank" rel="noopener">DGX B200</a> · <a href="https://www.nvidia.com/en-us/data-center/dgx-b300/" target="_blank" rel="noopener">DGX B300</a></li>
+          <li><a href="https://www.amd.com/zh-tw/products/accelerators/instinct/mi350.html" target="_blank" rel="noopener">AMD Instinct MI350 系列</a> · <a href="https://www.intel.com/content/www/us/en/products/details/processors/ai-accelerators/gaudi3.html" target="_blank" rel="noopener">Intel Gaudi 3</a></li>
+          <li><a href="https://inferencex.semianalysis.com/zh/chips/b300" target="_blank" rel="noopener">SemiAnalysis · NVIDIA B300</a></li>
+          <li><a href="https://mirrorfrog.com/docs/cards/others/cambricon-mlu-590/" target="_blank" rel="noopener">MLU590</a> · <a href="https://mirrorfrog.com/docs/cards/others/kunlun-p800/" target="_blank" rel="noopener">昆仑芯 P800</a> · <a href="https://mirrorfrog.com/docs/cards/others/moore-threads-mtt-s5000/" target="_blank" rel="noopener">MTT S5000</a> · <a href="https://mirrorfrog.com/docs/cards/amd/mi450/" target="_blank" rel="noopener">AMD MI450</a></li>
+          <li><a href="https://cloud.tencent.com/developer/article/2697481" target="_blank" rel="noopener">昇腾 910B / 910C 公开对比</a> · <a href="https://www.hiascend.com/hardware/accelerator-card" target="_blank" rel="noopener">华为昇腾 Atlas 300I Pro / Duo / A2 加速卡</a></li>
+          <li><a href="https://help.aliyun.com/zh/pai/product-overview/estimation-of-the-required-video-memory-for-the-model" target="_blank" rel="noopener">阿里云 PAI《模型所需显存估算》</a>（显存构成口径）· 估算器参数量口径：<a href="https://www.alibabacloud.com/help/zh/model-studio/newly-released-models" target="_blank" rel="noopener">阿里云百炼模型列表</a>（Qwen3.8 / DeepSeek-V4 / Kimi K3 总参与激活参数）· <a href="https://platform.moonshot.cn/docs" target="_blank" rel="noopener">Kimi 开放平台</a>（K3.1 Pro 3 万亿级）· <a href="https://www.modelscope.cn/" target="_blank" rel="noopener">魔搭社区</a>（开源权重可下载范围）；GLM-5.3、GLM-5.3-Flash、MiniMax M3.1-Flash、混元 Hy3 / Hy4 的总参与激活参数官方站点未公布数值页，属媒体口径，已在每个模型的“参数出处”行标注</li>
+          <li><a href="https://www.donews.com/news/detail/4/6409523.html" target="_blank" rel="noopener">平头哥真武 810E 上线</a> · <a href="https://user.guancha.cn/main/content?id=1742149" target="_blank" rel="noopener">真武 V900 与 ICN 互联</a> · <a href="https://mirrorfrog.com/docs/cards/others/alibaba-zhenwu-m890/" target="_blank" rel="noopener">真武 M890（第三方收录）</a></li>
+        </ul>
+      </div>
+    </details>
+  </section>
+</main>
+
+<div class="dock" id="dock" hidden></div>
+<div class="modal" id="modal" hidden aria-modal="true" role="dialog"></div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+const DATA = [
+  {
+    id:'h100-sxm', name:'H100 SXM5', vendor:'nvidia', arch:'Hopper', year:2022, status:'ship',
+    formLabel:'SXM5', forms:['SXM'], scenes:['train','infer'],
+    mem:80, memType:'HBM3', bw:3.35, fp16:989.5, fp8:1979, fp4:null, int8:1979,
+    link:'NVLink 4 · 900 GB/s', power:700,
+    pos:'上一代训练旗舰，8 卡 HGX 主力', note:'FP16 989.5 TFLOPS 为稠密值，稀疏口径 1,979 TFLOPS。', src:'official'
+  },
+  {
+    id:'h100-pcie', name:'H100 PCIe', vendor:'nvidia', arch:'Hopper', year:2022, status:'ship',
+    formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['train','infer'],
+    mem:80, memType:'HBM3', bw:2.0, fp16:756, fp8:1513, fp4:null, int8:1513,
+    link:'NVLink Bridge · 600 GB/s', power:350,
+    pos:'PCIe 形态训练 / 推理，通用服务器适配', note:'FP16 756 TFLOPS 为稠密值；同代 SXM 版性能更高。', src:'official'
+  },
+  {
+    id:'h200', name:'H200 SXM', vendor:'nvidia', arch:'Hopper', year:2023, status:'ship',
+    formLabel:'SXM5', forms:['SXM'], scenes:['train','infer'],
+    mem:141, memType:'HBM3e', bw:4.8, fp16:989.5, fp8:1979, fp4:null, int8:1979,
+    link:'NVLink 4 · 900 GB/s', power:700,
+    pos:'141GB 大显存，长上下文推理 / 训练', note:'与 H100 同算力，显存容量与带宽提升。', src:'official'
+  },
+  {
+    id:'h20', name:'H20', vendor:'nvidia', arch:'Hopper', year:2024, status:'ship',
+    formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['infer'],
+    mem:96, memType:'HBM3', bw:4.0, fp16:148, fp8:296, fp4:null, int8:296,
+    link:'NVLink 4 · 900 GB/s', power:400,
+    pos:'中国市场特供，带宽保留、算力削减，推理向', note:'受出口管制影响的中国特供型号。', src:'official'
+  },
+  {
+    id:'b200', name:'B200 SXM', vendor:'nvidia', arch:'Blackwell', year:2024, status:'ship',
+    formLabel:'SXM6', forms:['SXM'], scenes:['train','infer'],
+    mem:180, memType:'HBM3e', bw:8.0, fp16:2250, fp8:4500, fp4:9000, int8:4500,
+    link:'NVLink 5 · 1.8 TB/s', power:1000,
+    pos:'Blackwell 首代旗舰，FP4 训练 / 推理', note:'180GB 为可用容量，物料容量 192GB；FP4 9 PFLOPS 为稠密值。', src:'official'
+  },
+  {
+    id:'b300', name:'B300 SXM', vendor:'nvidia', arch:'Blackwell Ultra', year:2025, status:'ship',
+    formLabel:'SXM6', forms:['SXM'], scenes:['train','infer'],
+    mem:288, memType:'HBM3e', bw:8.0, fp16:2250, fp8:4500, fp4:13500, int8:4500,
+    link:'NVLink 5 · 1.8 TB/s', power:1400,
+    pos:'Blackwell Ultra，288GB 大显存推理', note:'FP4 另有 15 PFLOPS 口径；HGX 版本功耗可配置至 1100W。', src:'mixed'
+  },
+  {
+    id:'rubin', name:'Rubin VR200', vendor:'nvidia', arch:'Vera Rubin', year:2026, status:'ramp',
+    formLabel:'SXM（NVLink 6）', forms:['SXM'], scenes:['train','infer'],
+    mem:288, memType:'HBM4', bw:22, fp16:null, fp8:null, fp4:20000, int8:null,
+    link:'NVLink 6 · 3.6 TB/s', power:1800,
+    pos:'新一代旗舰，HBM4 + NVLink 6', note:'标准版 1800W / 增强版 2300W；FP4 40 PFLOPS 为稀疏口径，表中折半。', src:'mixed', derived:['fp4']
+  },
+  {
+    id:'l40s', name:'L40S', vendor:'nvidia', arch:'Ada Lovelace', year:2023, status:'ship',
+    formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['infer'],
+    mem:48, memType:'GDDR6 ECC', bw:0.864, fp16:362, fp8:733, fp4:null, int8:733,
+    link:'PCIe 5.0（无 NVLink）', power:350,
+    pos:'48GB 数据中心推理 / 微调', note:'官方规格页 L40S 基于 Ada 2 代光追，张量算力为 FP16 362.05（稠密）/ 733（稀疏）、FP8 与 INT8 733（稠密）/ 1,466（稀疏），页面无 FP4 一行；表中取稠密值。', src:'official'
+  },
+  {
+    id:'l4', name:'L4', vendor:'nvidia', arch:'Ada Lovelace', year:2023, status:'ship',
+    formLabel:'PCIe 4.0 单槽半高', forms:['PCIe'], scenes:['infer'],
+    mem:24, memType:'GDDR6', bw:0.3, fp16:60.5, fp8:121, fp4:242.5, int8:121,
+    link:'PCIe 4.0（无 NVLink）', power:72,
+    pos:'72W 低功耗推理 / 视频', note:'官方 121 TFLOPS FP16 为稀疏口径，表中折半。', src:'official', derived:['fp16','fp8','fp4','int8']
+  },
+  {
+    id:'mi300x', name:'MI300X', vendor:'amd', arch:'CDNA 3', year:2023, status:'ship',
+    formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
+    mem:192, memType:'HBM3', bw:5.3, fp16:1307, fp8:2615, fp4:null, int8:2615,
+    link:'Infinity Fabric · 896 GB/s', power:750,
+    pos:'192GB 大显存，推理性价比', note:'FP16 1,307 / FP8 2,615 TFLOPS 为稠密值。', src:'official'
+  },
+  {
+    id:'mi325x', name:'MI325X', vendor:'amd', arch:'CDNA 3', year:2024, status:'ship',
+    formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
+    mem:256, memType:'HBM3e', bw:6.0, fp16:1307, fp8:2615, fp4:null, int8:2615,
+    link:'Infinity Fabric · 896 GB/s', power:1000,
+    pos:'256GB 显存，推理 / 微调', note:'与 MI300X 同算力，显存容量与带宽提升。', src:'official'
+  },
+  {
+    id:'mi350x', name:'MI350X', vendor:'amd', arch:'CDNA 4', year:2025, status:'ship',
+    formLabel:'OAM（风冷）', forms:['OAM'], scenes:['train','infer'],
+    mem:288, memType:'HBM3e', bw:8.0, fp16:2300, fp8:4600, fp4:9200, int8:null,
+    link:'Infinity Fabric 7 × 144 GB/s', power:1000,
+    pos:'CDNA 4 风冷旗舰', note:'官方规格表稠密口径：FP16/BF16 矩阵 2.3、FP8 矩阵 4.6、MXFP4 9.2 PFLOPS（稀疏翻倍为 4.6 / 9.2 / 18.4），TBP 1000W；官方未列 INT8。', src:'official'
+  },
+  {
+    id:'mi355x', name:'MI355X', vendor:'amd', arch:'CDNA 4', year:2025, status:'ship',
+    formLabel:'OAM（液冷）', forms:['OAM'], scenes:['train','infer'],
+    mem:288, memType:'HBM3e', bw:8.0, fp16:2500, fp8:5000, fp4:10100, int8:null,
+    link:'Infinity Fabric 7 × 144 GB/s', power:1400,
+    pos:'CDNA 4 液冷旗舰，FP4 推理', note:'官方规格表稠密口径：FP16/BF16 矩阵 2.5、FP8 矩阵 5.0、MXFP4 10.1 PFLOPS（稀疏 5 / 10.1 / 20.2），TBP 1400W；与 MI350X 同显存同带宽，靠更高频率与液冷拉算力。', src:'official'
+  },
+  {
+    id:'mi350p', name:'MI350P', vendor:'amd', arch:'CDNA 4', year:2025, status:'ship',
+    formLabel:'PCIe 5.0 双槽加高', forms:['PCIe'], scenes:['infer'],
+    mem:144, memType:'HBM3e', bw:4.0, fp16:1150, fp8:2300, fp4:4600, int8:null,
+    link:'PCIe 5.0 ×16（无 IF 卡间互联）', power:600,
+    pos:'CDNA 4 PCIe 推理卡，标准服务器可装', note:'官方规格表：144GB HBM3E、峰值带宽 4TB/s、FP16/BF16 矩阵 1.15、FP8 2.3、MXFP4 4.6 PFLOPS（均为稠密），TBP 600W 上限、可配置 450W；与 MI350X/MI355X 算力显存都不同，单列一行。官方未列 INT8。', src:'official'
+  },
+  {
+    id:'mi450', name:'MI450 / MI455X', vendor:'amd', arch:'CDNA 5', year:2026, status:'ramp',
+    formLabel:'OAM（液冷）', forms:['OAM'], scenes:['train','infer'],
+    mem:432, memType:'HBM4', bw:23.3, fp16:5000, fp8:10050, fp4:20150, int8:null,
+    link:'UALink / UALoE · 3.6 TB/s', power:null,
+    pos:'432GB HBM4，Helios 机柜', note:'官方规格表：FP16/BF16 矩阵稠密 5、稀疏 10.1 PFLOPS，另列 FP8 20.1、MXFP4 40.3（对应稀疏口径，折半得稠密值）；显存 432GB HBM4 / 23.3TB/s，形态为 EAM 增强加速器模组而非标准 OAM，整卡 TBP 官方未公布，Helios 整机液冷。', src:'mixed', derived:['fp8','fp4']
+  },
+  {
+    id:'gaudi3-oam', name:'Gaudi 3 HL-325L', vendor:'intel', arch:'Habana Gaudi 3', year:2024, status:'ship',
+    formLabel:'OAM 2.0', forms:['OAM'], scenes:['train','infer'],
+    mem:128, memType:'HBM2e', bw:3.7, fp16:1835, fp8:1835, fp4:null, int8:1835,
+    link:'24×200GbE · 4.8 Tb/s', power:900,
+    pos:'以太网原生互联，训练 / 推理', note:'液冷版峰值 1200W；FP8 与 BF16 同速。', src:'official'
+  },
+  {
+    id:'gaudi3-pcie', name:'Gaudi 3 HL-338', vendor:'intel', arch:'Habana Gaudi 3', year:2025, status:'ship',
+    formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['infer'],
+    mem:128, memType:'HBM2e', bw:3.7, fp16:1835, fp8:1835, fp4:null, int8:1835,
+    link:'24×200GbE · 4.8 Tb/s', power:600,
+    pos:'PCIe 形态，标准服务器部署', note:'与 OAM 版同显存 / 带宽，TDP 降至 600W。', src:'official'
+  },
+  {
+    id:'atlas-300t-a2', name:'Atlas 300T A2', vendor:'huawei', arch:'达芬奇（910B4）', year:2024, status:'ship',
+    formLabel:'PCIe 5.0 双宽全高', forms:['PCIe'], scenes:['train'],
+    mem:32, memType:'HBM', bw:0.8, fp16:280, fp8:null, fp4:null, int8:560,
+    link:'PCIe 5.0 ×16 + 1×200GE RoCE', power:350,
+    pos:'昇腾训练标卡，8 卡服务器组网', note:'华为公开规格：32GB HBM / 800GB/s、FP16 280 TFLOPS、INT8 560 TOPS、FP32 75 TFLOPS、PCIe 5.0 ×16、板载 200GE RoCE。功耗官方彩页为最大 350W，渠道参数另有 300W 口径。', src:'official'
+  },
+  {
+    id:'atlas-300i-a2', name:'Atlas 300I A2', vendor:'huawei', arch:'达芬奇（910B4）', year:2024, status:'ship',
+    formLabel:'PCIe 5.0 双宽全高', forms:['PCIe'], scenes:['infer'],
+    mem:64, memType:'HBM', bw:1.6, fp16:280, fp8:null, fp4:null, int8:560,
+    link:'PCIe 5.0 ×16（无卡间互联）', power:350,
+    pos:'64GB 大显存推理标卡，长上下文', note:'官网技术规格：形态为双槽位全高全长 PCIe 卡，AI 算力 INT8 560 TOPS / FP16 280 TFLOPS，内存规格同时提供 32GB HBM（带宽 0.8TB/s）与 64GB HBM（带宽 1.6TB/s）两档，PCIe 5.0，最大 350W，被动风冷；本行为 64GB 版。', src:'official'
+  },
+  {
+    id:'atlas-300i-a2-32g', name:'Atlas 300I A2（32GB）', vendor:'huawei', arch:'达芬奇（910B4）', year:2024, status:'ship',
+    formLabel:'PCIe 5.0 双宽全高', forms:['PCIe'], scenes:['infer'],
+    mem:32, memType:'HBM', bw:0.8, fp16:280, fp8:null, fp4:null, int8:560,
+    link:'PCIe 5.0 ×16（无卡间互联）', power:350,
+    pos:'32GB 版推理标卡，带宽减半', note:'与 64GB 版同算力、同 350W，显存容量与带宽为 32GB / 0.8TB/s，官网列在同一张规格表的两个内存档位，故拆成两行而不是取中间值。', src:'official'
+  },
+  {
+    id:'atlas-350', name:'Atlas 350 加速卡', vendor:'huawei', arch:'达芬奇（Ascend 950PR）', year:2026, status:'ship',
+    formLabel:'PCIe 5.0 双宽全高（OH FL DW）', forms:['PCIe'], scenes:['infer'],
+    mem:112, memType:'HBM', bw:1.4, fp16:425, fp8:804, fp4:1561, int8:804,
+    link:'灵衢 UB：2 卡 424 / 4 卡 318 GB/s', power:600,
+    pos:'950PR 推理卡，mxFP4 原生', note:'官网技术规格：形态扩高×全长×双宽 PCIe 标卡，AI 算力 mxFP4 1561、mxFP8/HiF8/mxFP6/INT8 804、FP16/BF16 425 TFLOPS（官方标注为理论值），112GB HBM / 1.4TB/s 支持 ECC，PCIe 5.0×16 双向 128GBps，卡间灵衢互联 2 卡全互连双向 424GB/s、4 卡 318GB/s，最大功耗 ≤600W，被动散热。', src:'official'
+  },
+  {
+    id:'atlas-150', name:'Atlas 150 加速卡', vendor:'huawei', arch:'达芬奇（Ascend 950PR）', year:2026, status:'ship',
+    formLabel:'PCIe 5.0 双宽全高（OH FL DW）', forms:['PCIe'], scenes:['infer'],
+    mem:84, memType:'HBM', bw:1.4, fp16:425, fp8:804, fp4:1561, int8:804,
+    link:'灵衢 UB：2 卡 424 / 4 卡 318 GB/s', power:600,
+    pos:'84GB 版，同算力小显存', note:'与 Atlas 350 同一颗 Ascend 950PR、算力与 1.4TB/s 带宽、≤600W 全部一致，只有 HBM 容量为 84GB；官网分成两个型号页，故各占一行。', src:'official'
+  },
+  {
+    id:'atlas-300i-duo', name:'Atlas 300I Duo', vendor:'huawei', arch:'达芬奇（2×310P）', year:2022, status:'ship',
+    formLabel:'PCIe 4.0 单槽全高', forms:['PCIe'], scenes:['infer'],
+    mem:96, memType:'LPDDR4X', bw:0.408, fp16:140, fp8:null, fp4:null, int8:280,
+    link:'PCIe 4.0 ×16（无卡间互联）', power:150,
+    pos:'低功耗高内存推理卡，视频 / OCR', note:'官网技术规格：2×310P，AI 算力 INT8 280 TOPS / FP16 140 TFLOPS，LPDDR4X 提供 96GB 与 48GB 两档、总带宽同为 408GB/s，PCIe 4.0 ×16 单槽位全高全长，功耗 150W；两档算力带宽功耗相同，只在容量上分档。', src:'official'
+  },
+  {
+    id:'atlas-300i-pro', name:'Atlas 300I Pro', vendor:'huawei', arch:'达芬奇（310P）', year:2022, status:'ship',
+    formLabel:'PCIe 4.0 半高半长', forms:['PCIe'], scenes:['infer'],
+    mem:24, memType:'LPDDR4X', bw:0.2048, fp16:70, fp8:null, fp4:null, int8:140,
+    link:'PCIe 4.0 ×16（无卡间互联）', power:72,
+    pos:'72W 半高卡，轻量推理', note:'官网：1×310P、24GB LPDDR4X、204.8GB/s、FP16 70 TFLOPS、INT8 140 TOPS、最大 72W、半高半长单槽。', src:'official'
+  },
+  {
+    id:'ascend910c', name:'昇腾 910C', vendor:'huawei', arch:'达芬奇（双 die）', year:2025, status:'ship',
+    formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
+    mem:128, memType:'HBM2e', bw:3.2, fp16:800, fp8:null, fp4:null, int8:1600,
+    link:'HCCS 784 + UB 392 GB/s', power:750,
+    pos:'双 die 旗舰，CloudMatrix 384 超节点', note:'华为未公开 910C 单卡规格页，官方材料只到 Atlas 900 A3 SuperPoD / CloudMatrix 384 整机；显存、算力与功耗为媒体与研报口径，区间 96–128GB、310–750W。', src:'media'
+  },
+  {
+    id:'mlu590', name:'思元 590（MLU590）', vendor:'cambricon', arch:'MLUarch05', year:2024, status:'ship',
+    formLabel:'PCIe 5.0 / OAM', forms:['PCIe','OAM'], scenes:['train','infer'],
+    mem:96, memType:'HBM2e', bw:2.0, fp16:256, fp8:null, fp4:null, int8:512,
+    link:'MLU-Link 3.0', power:350,
+    pos:'国产训推，推理性价比', note:'厂商未公开完整规格，取第三方汇总；另有 345 TFLOPS FP16 口径。', src:'media'
+  },
+  {
+    id:'mlu690', name:'思元 690（MLU690）', vendor:'cambricon', arch:'MLUarch（双 die）', year:2026, status:'ship',
+    formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
+    mem:196, memType:'HBM3', bw:3.35, fp16:700, fp8:null, fp4:null, int8:2800,
+    link:'MLU-Link · 890 GB/s', power:450,
+    pos:'196GB 双 die，国产大显存', note:'FP16 700+ / INT8 2,800+；功耗 400–500W 为报道区间。', src:'media'
+  },
+  {
+    id:'p800', name:'昆仑芯 P800', vendor:'kunlun', arch:'XPU-P', year:2024, status:'ship',
+    formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
+    mem:96, memType:'HBM3', bw:2.4, fp16:345, fp8:null, fp4:null, int8:820,
+    link:'XCCL', power:400,
+    pos:'百度 XPU，文心 / 云推理', note:'公开规格有限；支持 FP8，但未公布具体峰值。', src:'media'
+  },
+  {
+    id:'s5000', name:'MTT S5000', vendor:'moore', arch:'MUSA 平湖（PH100）', year:2025, status:'ship',
+    formLabel:'OAM / PCIe', forms:['OAM','PCIe'], scenes:['train','infer'],
+    mem:80, memType:'HBM（类型未公开）', bw:1.6, fp16:400, fp8:1000, fp4:null, int8:800,
+    link:'MTLink 2.0 · 784 GB/s', power:500,
+    pos:'全功能 GPU，训推一体', note:'液冷版 FP8 1,000 / 风冷 920 TFLOPS；FP16 400、INT8 800。', src:'official'
+  },
+  {
+    id:'c500', name:'曦云 C500', vendor:'metax', arch:'XCORE', year:2024, status:'ship',
+    formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['infer'],
+    mem:64, memType:'HBM2e', bw:1.8, fp16:280, fp8:null, fp4:null, int8:560,
+    link:'MetaXLink（2 / 4 卡）', power:350,
+    pos:'PCIe 通用 GPU，CUDA 迁移', note:'官方产品页只写「64GB 高带宽显存、全高全长双槽位 PCIe 板卡、最大功耗 350W」，未公布算力与显存带宽；FP16 280 / INT8 560 / 1.8TB/s 取第三方汇总口径。', src:'mixed', derived:['fp16','int8']
+  },
+  {
+    id:'c600', name:'曦云 C600', vendor:'metax', arch:'XCORE 1.5', year:2026, status:'ship',
+    formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['train','infer'],
+    mem:144, memType:'HBM3e', bw:1.6, fp16:330, fp8:null, fp4:null, int8:null,
+    link:'MetaXLink', power:null,
+    pos:'144GB 大显存，国产 H200 对标', note:'FP8 峰值约 1 PFLOPS（报道），整卡功耗未公开。', src:'media'
+  },
+  {
+    id:'br100', name:'壁仞 BR100', vendor:'biren', arch:'BIRENSUPA（Chiplet）', year:2022, status:'ship',
+    formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
+    mem:64, memType:'HBM2e', bw:2.3, fp16:1024, fp8:null, fp4:null, int8:2048,
+    link:'BLink（8 卡）', power:550,
+    pos:'Chiplet 通用 GPU，纸面算力高', note:'BF16 1,024 TFLOPS / INT8 2,048 TOPS；量产与生态有限。', src:'official'
+  },
+  {
+    id:'tiangai150', name:'天数 天垓 150', vendor:'iluvatar', arch:'ivcore11', year:2024, status:'ship',
+    formLabel:'PCIe 4.0 双槽', forms:['PCIe'], scenes:['train','infer'],
+    mem:64, memType:'HBM2e', bw:1.2, fp16:192, fp8:null, fp4:null, int8:384,
+    link:'PCIe 4.0（无卡间互联）', power:350,
+    pos:'国产通用 GPU，CUDA 兼容', note:'采购参数：FP16 ≥192 TFLOPS，TDP ≤350W。', src:'official'
+  },
+  {
+    id:'k100', name:'海光 DCU K100', vendor:'hygon', arch:'深算 3.0', year:2025, status:'ship',
+    formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['infer'],
+    mem:64, memType:'HBM2e', bw:0.896, fp16:196, fp8:null, fp4:null, int8:392,
+    link:'PCIe 5.0（无卡间互联）', power:350,
+    pos:'海光 DCU，信创推理 / 科学计算', note:'K100 AI 版：FP16 196 / INT8 392；标准版 FP16 100。', src:'media'
+  },
+  {
+    id:'zhenwu810e', name:'真武 810E（PPU）', vendor:'t-head', arch:'PPU（自研并行架构）', year:2024, status:'ship',
+    formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['train','infer'],
+    mem:96, memType:'HBM2e', bw:2.7, fp16:120, fp8:null, fp4:null, int8:null,
+    link:'ICN 片间互联 · 700 GB/s（7 端口）', power:400,
+    pos:'阿里云训推一体，整体对标 H20', note:'官方规格表仅三项：96GB HBM2e、内存带宽 2.7TB/s、片间互联 700GB/s（7 个 ICN 端口）；单卡 FLOPS 与整卡功耗官方未公布，表中 FP16 120 TFLOPS 是按 M890 规格回推的估算值、400W 与 PCIe 5.0×16 双槽形态为媒体口径，均非官方数据。2024Q2 推出，2026-01 官网上线。', src:'mixed', derived:['fp16']
+  },
+  {
+    id:'zhenwu-m890', name:'真武 M890', vendor:'t-head', arch:'PPU（第二代）', year:2026, status:'ship',
+    formLabel:'未披露', forms:[], scenes:['train','infer'],
+    mem:144, memType:'HBM（类型未公开）', bw:null, fp16:600, fp8:null, fp4:null, int8:null,
+    link:'ICN Switch 1.0 · 800 GB/s', power:null,
+    pos:'磐久 AL128 超节点，810E 三倍性能', note:'官方公布 144GB HBM、800GB/s 互联、3 倍于 810E，配合 ICN Switch 1.0 实现 64 卡全带宽；FP16 600 TFLOPS 为第三方收录，官方未公布绝对算力 / 显存带宽 / 功耗。2026-05 发布，已进入运营商智算采购。', src:'mixed', derived:['fp16']
+  },
+  {
+    id:'zhenwu-v900', name:'真武 V900', vendor:'t-head', arch:'PPU（第三代）', year:2026, status:'ramp',
+    formLabel:'未披露', forms:[], scenes:['train','infer'],
+    mem:216, memType:'HBM（类型未公开）', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'ICN · 1.2 TB/s', power:null,
+    pos:'216GB 大显存，2027Q1 量产', note:'官方公布 216GB 显存、1,200GB/s 互联、3 倍于 M890，原生支持 FP8 / FP4；绝对算力、显存带宽、功耗与封装均未披露，计划 2027Q1 量产。', src:'official'
+  }
+];
+const VENDOR_ORDER = ['nvidia','amd','intel','huawei','t-head','cambricon','kunlun','moore','metax','biren','iluvatar','hygon'];
+const VENDOR_LABEL = {
+  nvidia:'NVIDIA', amd:'AMD', intel:'Intel', huawei:'华为昇腾', 't-head':'平头哥（PPU）', cambricon:'寒武纪',
+  kunlun:'昆仑芯', moore:'摩尔线程', metax:'沐曦', biren:'壁仞', iluvatar:'天数智芯', hygon:'海光'
+};
+const FORMS = [['SXM','SXM'],['OAM','OAM'],['PCIe','PCIe']];
+const SCENES = [['train','训练'],['infer','推理']];
+const DIMS = [['basic','基础'],['compute','算力'],['memory','显存'],['link','互联 / 功耗']];
+const PREC_LABEL = {fp16:'FP16', fp8:'FP8', fp4:'FP4', int8:'INT8'};
+const PREC_UNIT = {fp16:'TFLOPS', fp8:'TFLOPS', fp4:'TFLOPS', int8:'TOPS'};
+const SRC_LABEL = {official:'厂商公布', mixed:'厂商 + 媒体', media:'第三方 / 媒体'};
+const MAX_SEL = 6;
+const KEY = 'gpu-compare-v1';
+const NS = 'http://www.w3.org/2000/svg';
+
+const BY_ID = Object.fromEntries(DATA.map(c => [c.id, c]));
+const V_INDEX = v => VENDOR_ORDER.indexOf(v);
+
+const state = {
+  selected: new Set(),
+  vendors: new Set(),
+  forms: new Set(),
+  scenes: new Set(),
+  groups: new Set(['basic','compute','memory','link']),
+  q: '',
+  precision: 'fp16',
+  sort: 'default',
+  includeRamp: true,
+  diffOnly: false
+};
+
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+const grid = $('#grid');
+const vendorChips = $('#vendorChips');
+const formChips = $('#formChips');
+const sceneChips = $('#sceneChips');
+const dimChips = $('#dimChips');
+const qInput = $('#q');
+const precisionSel = $('#precision');
+const sortSel = $('#sort');
+const includeRampBox = $('#includeRamp');
+const diffOnlyBox = $('#diffOnly');
+const resultCount = $('#resultCount');
+const countTotal = $('#countTotal');
+const compareSection = $('#compareSection');
+const compareSub = $('#compareSub');
+const cmpTable = $('#cmpTable');
+const scatter = $('#scatter');
+const effChart = $('#effChart');
+const effTitle = $('#effTitle');
+const dock = $('#dock');
+const modal = $('#modal');
+const toastEl = $('#toast');
+
+const trimZero = s => s.indexOf('.') > -1 ? s.replace(/0+$/, '').replace(/\.$/, '') : s;
+const fmtNum = n => n == null ? '—' : n.toLocaleString('en-US', {maximumFractionDigits:1});
+const fmtBw = n => n == null ? '—' : trimZero(n.toFixed(2)) + ' TB/s';
+
+function fmtComputeVal(v, key) {
+  if (v == null) return {num:'—', unit:''};
+  if (key !== 'int8' && v >= 1000) return {num:trimZero((v / 1000).toFixed(2)), unit:'PFLOPS'};
+  return {num:fmtNum(v), unit:key === 'int8' ? 'TOPS' : 'TFLOPS'};
+}
+
+function primaryKey(c) {
+  if (c[state.precision] != null) return state.precision;
+  return ['fp16','fp8','fp4','int8'].find(k => c[k] != null) || null;
+}
+
+function eff(c) {
+  const v = c[state.precision];
+  if (v == null || c.power == null || !c.power) return null;
+  return v / c.power;
+}
+
+const SORTERS = {
+  default:(a,b) => V_INDEX(a.vendor) - V_INDEX(b.vendor) || b.year - a.year || a.name.localeCompare(b.name, 'zh'),
+  compute:(a,b) => (b[state.precision] ?? -1) - (a[state.precision] ?? -1) || SORTERS.default(a,b),
+  mem:(a,b) => b.mem - a.mem,
+  bw:(a,b) => (b.bw ?? -1) - (a.bw ?? -1),
+  power:(a,b) => (a.power ?? 1e9) - (b.power ?? 1e9),
+  eff:(a,b) => (eff(b) ?? -1) - (eff(a) ?? -1),
+  year:(a,b) => b.year - a.year || SORTERS.default(a,b)
+};
+
+function visible() {
+  const q = state.q;
+  return DATA.filter(c => {
+    if (!state.includeRamp && c.status === 'ramp') return false;
+    if (state.vendors.size && !state.vendors.has(c.vendor)) return false;
+    if (state.forms.size && !c.forms.some(f => state.forms.has(f))) return false;
+    if (state.scenes.size && !c.scenes.some(s => state.scenes.has(s))) return false;
+    if (q) {
+      const hay = [c.name, c.arch, VENDOR_LABEL[c.vendor], c.formLabel, c.pos].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort(SORTERS[state.sort] || SORTERS.default);
+}
+
+function selectedCards() {
+  return Array.from(state.selected).map(id => BY_ID[id]).filter(Boolean);
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify({
+      selected:Array.from(state.selected),
+      precision:state.precision,
+      sort:state.sort
+    }));
+  } catch (e) {}
+}
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (!s) return;
+    if (Array.isArray(s.selected)) {
+      s.selected.forEach(id => {
+        if (BY_ID[id] && state.selected.size < MAX_SEL) state.selected.add(id);
+      });
+    }
+    if (['fp16','fp8','fp4','int8'].includes(s.precision)) state.precision = s.precision;
+    if (['default','compute','mem','bw','power','eff','year'].includes(s.sort)) state.sort = s.sort;
+  } catch (e) {}
+}
+
+function chipHTML(value, label, count, on) {
+  return `<button type="button" class="chip${on ? ' on' : ''}" data-value="${value}" aria-pressed="${on}">${label}<span class="n">${count}</span></button>`;
+}
+
+function renderChips() {
+  vendorChips.innerHTML = VENDOR_ORDER.map(v =>
+    chipHTML(v, VENDOR_LABEL[v], DATA.filter(c => c.vendor === v).length, state.vendors.has(v))
+  ).join('');
+  formChips.innerHTML = FORMS.map(([f, l]) =>
+    chipHTML(f, l, DATA.filter(c => c.forms.includes(f)).length, state.forms.has(f))
+  ).join('');
+  sceneChips.innerHTML = SCENES.map(([s, l]) =>
+    chipHTML(s, l, DATA.filter(c => c.scenes.includes(s)).length, state.scenes.has(s))
+  ).join('');
+}
+
+function renderDims() {
+  dimChips.innerHTML = DIMS.map(([k, l]) =>
+    `<button type="button" class="chip${state.groups.has(k) ? ' on' : ''}" data-dim="${k}" aria-pressed="${state.groups.has(k)}">${l}</button>`
+  ).join('');
+}
+
+function cardHTML(c) {
+  const sel = state.selected.has(c.id);
+  const k = primaryKey(c);
+  let compute = `<div><dt>算力</dt><dd>—</dd></div>`;
+  if (k) {
+    const p = fmtComputeVal(c[k], k);
+    compute = `<div><dt>${PREC_LABEL[k]} 算力</dt><dd>${p.num}<span>${p.unit}</span>${(c.derived || []).includes(k) ? '<i class="dag">†</i>' : ''}</dd></div>`;
+  }
+  return `<article class="card${sel ? ' sel' : ''}" data-id="${c.id}" role="checkbox" aria-checked="${sel}" tabindex="0" aria-label="${c.name}">
+    <span class="pick" aria-hidden="true"></span>
+    <div class="card-top">
+      <span class="vendor">${VENDOR_LABEL[c.vendor]}</span>
+      <span class="form">${c.formLabel}</span>
+      ${c.status === 'ramp' ? '<span class="newtag">爬坡</span>' : ''}
+    </div>
+    <h3>${c.name}</h3>
+    <p class="arch">${c.arch} · ${c.year}</p>
+    <dl class="specs">
+      <div><dt>显存</dt><dd>${c.mem}<span>GB</span></dd></div>
+      <div><dt>带宽</dt><dd>${c.bw == null ? '—' : trimZero(c.bw.toFixed(2)) + '<span>TB/s</span>'}</dd></div>
+      ${compute}
+    </dl>
+    <div class="card-foot">
+      <span class="power">${c.power == null ? '功耗未公开' : c.power + 'W'}</span>
+      <span class="cardlink" title="${c.link}">${c.link}</span>
+      <button class="detail" data-detail="${c.id}" type="button">详情</button>
+    </div>
+  </article>`;
+}
+
+function renderGrid() {
+  const list = visible();
+  resultCount.innerHTML = `筛选出 <b>${list.length}</b> 款 / 共 ${DATA.length} 款`;
+  grid.innerHTML = list.length
+    ? list.map(cardHTML).join('')
+    : `<div class="empty-state">没有匹配的型号，试试“重置筛选”。</div>`;
+}
+
+function syncGridSelection() {
+  $$('.card', grid).forEach(el => {
+    const on = state.selected.has(el.dataset.id);
+    el.classList.toggle('sel', on);
+    el.setAttribute('aria-checked', String(on));
+  });
+}
+
+function renderDock() {
+  const sel = selectedCards();
+  if (!sel.length) {
+    dock.hidden = true;
+    dock.innerHTML = '';
+    return;
+  }
+  dock.hidden = false;
+  dock.innerHTML = `<div class="dock-chips">${sel.map(c =>
+    `<span class="dock-chip">${c.name}<button type="button" data-remove="${c.id}" aria-label="移除 ${c.name}">×</button></span>`
+  ).join('')}</div>
+  <div class="dock-actions">
+    <span class="dock-count">已选 ${sel.length} / ${MAX_SEL}</span>
+    <button class="ghostbtn" id="dockClear" type="button">清空</button>
+    <button class="primarybtn" id="dockCompare" type="button" ${sel.length < 2 ? 'disabled' : ''}>${sel.length < 2 ? '再选 ' + (2 - sel.length) + ' 款' : '查看对比'}</button>
+  </div>`;
+}
+
+function numCell(c, key) {
+  const v = c[key];
+  if (v == null) return '—';
+  return fmtNum(v) + ((c.derived || []).includes(key) ? ' †' : '');
+}
+
+function rowsForState() {
+  const p = state.precision;
+  const effUnit = PREC_UNIT[p] + '/W';
+  return [
+    {g:'basic', k:'vendor', label:'厂商', get:c => VENDOR_LABEL[c.vendor]},
+    {g:'basic', k:'arch', label:'架构', get:c => c.arch},
+    {g:'basic', k:'year', label:'发布年份', get:c => String(c.year)},
+    {g:'basic', k:'status', label:'上市状态', get:c => c.status === 'ramp' ? '爬坡 / 初始出货' : '已量产'},
+    {g:'basic', k:'form', label:'卡形态', get:c => c.formLabel},
+    {g:'basic', k:'pos', label:'定位', get:c => c.pos, wide:true},
+    {g:'compute', k:'fp16', label:'FP16 / BF16', unit:'稠密 · TFLOPS', get:c => numCell(c, 'fp16'), raw:c => c.fp16, best:'max'},
+    {g:'compute', k:'fp8', label:'FP8', unit:'稠密 · TFLOPS', get:c => numCell(c, 'fp8'), raw:c => c.fp8, best:'max'},
+    {g:'compute', k:'fp4', label:'FP4', unit:'稠密 · TFLOPS', get:c => numCell(c, 'fp4'), raw:c => c.fp4, best:'max'},
+    {g:'compute', k:'int8', label:'INT8', unit:'稠密 · TOPS', get:c => numCell(c, 'int8'), raw:c => c.int8, best:'max'},
+    {g:'memory', k:'mem', label:'显存容量', unit:'GB', get:c => `${c.mem} GB`, raw:c => c.mem, best:'max'},
+    {g:'memory', k:'memType', label:'显存类型', get:c => c.memType},
+    {g:'memory', k:'bw', label:'显存带宽', unit:'TB/s', get:c => fmtBw(c.bw), raw:c => c.bw, best:'max'},
+    {g:'link', k:'link', label:'卡间互联', get:c => c.link, wide:true},
+    {g:'link', k:'power', label:'整卡功耗', unit:'W', get:c => c.power == null ? '未公开' : `${fmtNum(c.power)} W`, raw:c => c.power, best:'min'},
+    {g:'link', k:'eff', label:'每瓦算力', unit:`${PREC_LABEL[p]} · ${effUnit}`, get:c => {
+      const v = eff(c);
+      return v == null ? '—' : `${v.toFixed(2)} ${effUnit}`;
+    }, raw:c => eff(c), best:'max'},
+    {g:'basic', k:'src', label:'数据来源', get:c => SRC_LABEL[c.src]}
+  ];
+}
+
+function bestFor(row, sel) {
+  if (!row.raw) return new Set();
+  const vals = sel.map(c => row.raw(c)).filter(v => v != null && Number.isFinite(v));
+  if (vals.length < 2) return new Set();
+  const target = row.best === 'min' ? Math.min(...vals) : Math.max(...vals);
+  if (vals.every(v => v === target)) return new Set();
+  return new Set(sel.filter(c => row.raw(c) === target).map(c => c.id));
+}
+
+function renderTable(sel) {
+  if (sel.length < 2) {
+    cmpTable.innerHTML = '';
+    return;
+  }
+  const rows = rowsForState();
+  const bestMap = new Map();
+  rows.forEach(r => { if (r.raw) bestMap.set(r.k, bestFor(r, sel)); });
+
+  const groups = [['basic','基础'],['compute','算力'],['memory','显存'],['link','互联与功耗']];
+  let html = `<thead><tr><th class="rowhead">参数</th>` +
+    sel.map(c => `<th class="colhead">
+      <div class="ch-vendor">${VENDOR_LABEL[c.vendor]}</div>
+      <div class="ch-name">${c.name}</div>
+      <div class="ch-form">${c.formLabel}</div>
+      <button type="button" class="ch-remove" data-remove="${c.id}" aria-label="移除 ${c.name}">×</button>
+    </th>`).join('') + `</tr></thead><tbody>`;
+
+  groups.forEach(([g, glabel]) => {
+    if (!state.groups.has(g)) return;
+    const visibleRows = [];
+    rows.filter(r => r.g === g).forEach(r => {
+      const vals = sel.map(c => String(r.get(c) ?? '—'));
+      const same = vals.every(v => v === vals[0]);
+      if (state.diffOnly && same) return;
+      visibleRows.push({r, vals});
+    });
+    if (!visibleRows.length) return;
+    html += `<tr class="group"><th colspan="${sel.length + 1}">${glabel}</th></tr>`;
+    visibleRows.forEach(({r, vals}) => {
+      const best = bestMap.get(r.k) || new Set();
+      html += `<tr data-row="${r.k}"><th scope="row" class="rowhead">${r.label}${r.unit ? `<span class="unit">${r.unit}</span>` : ''}</th>` +
+        sel.map((c, i) => `<td class="${best.has(c.id) ? 'best' : ''}${r.wide ? ' wide' : ''}">${vals[i]}</td>`).join('') +
+        `</tr>`;
+    });
+  });
+  html += `</tbody>`;
+  cmpTable.innerHTML = html;
+  updateScrollHint();
+}
+
+function updateScrollHint() {
+  const wrap = cmpTable.closest('.table-wrap');
+  const over = !!wrap && wrap.scrollWidth > wrap.clientWidth + 1;
+  const base = `${selectedCards().length} 款 · 算力口径 ${PREC_LABEL[state.precision]} · 更新 2026-10-30`;
+  compareSub.textContent = over ? base + ' · 表格可横向滚动' : base;
+}
+
+function svgEl(tag, attrs = {}, text) {
+  const el = document.createElementNS(NS, tag);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  if (text != null) el.textContent = text;
+  return el;
+}
+
+function renderScatter() {
+  scatter.innerHTML = '';
+  const W = 560, H = 340, L = 58, R = 18, T = 30, B = 46;
+  const x0 = L, x1 = W - R, y0 = H - B, y1 = T;
+  const bwMin = 0.25, bwMax = 32;
+  const lx = v => Math.log10(v);
+  const x = v => x0 + (lx(Math.max(bwMin, Math.min(bwMax, v))) - lx(bwMin)) / (lx(bwMax) - lx(bwMin)) * (x1 - x0);
+  const memMax = 480;
+  const y = v => y0 - (v / memMax) * (y0 - y1);
+
+  scatter.appendChild(svgEl('line', {x1:x0, y1:y0, x2:x1, y2:y0, class:'axis'}));
+  scatter.appendChild(svgEl('line', {x1:x0, y1:y0, x2:x0, y2:y1, class:'axis'}));
+
+  [0.25,0.5,1,2,4,8,16,32].forEach(v => {
+    const px = x(v);
+    scatter.appendChild(svgEl('line', {x1:px, y1:y1, x2:px, y2:y0, class:'gridline'}));
+    scatter.appendChild(svgEl('text', {x:px, y:y0 + 15, 'text-anchor':'middle', class:'tick'}, String(v)));
+  });
+  [0,100,200,300,400].forEach(v => {
+    const py = y(v);
+    scatter.appendChild(svgEl('line', {x1:x0, y1:py, x2:x1, y2:py, class:'gridline'}));
+    scatter.appendChild(svgEl('text', {x:x0 - 8, y:py + 3, 'text-anchor':'end', class:'tick'}, String(v)));
+  });
+
+  scatter.appendChild(svgEl('text', {x:(x0 + x1) / 2, y:H - 8, 'text-anchor':'middle', class:'axislabel'}, '显存带宽 (TB/s，对数轴)'));
+  scatter.appendChild(svgEl('text', {x:x0, y:y1 - 10, class:'axislabel'}, '显存容量 (GB)'));
+
+  const list = visible();
+  selectedCards().forEach(c => { if (!list.some(x => x.id === c.id)) list.push(c); });
+  const plot = list.filter(c => c.bw != null);
+
+  plot.forEach(c => {
+    const cx = x(c.bw), cy = y(c.mem);
+    const base = 3.2 + Math.sqrt(c.power || 100) / 12;
+    const isSel = state.selected.has(c.id);
+    const circ = svgEl('circle', {cx, cy, r:isSel ? base + 1.4 : base, class:'pt' + (isSel ? ' sel' : '')});
+    circ.appendChild(svgEl('title', {}, `${VENDOR_LABEL[c.vendor]} ${c.name}\n${c.mem} GB ${c.memType} · ${fmtBw(c.bw)}\n${c.power == null ? '功耗未公开' : c.power + ' W'}`));
+    scatter.appendChild(circ);
+  });
+
+  const placed = [];
+  selectedCards().filter(c => c.bw != null).forEach(c => {
+    const cx = x(c.bw), cy = y(c.mem);
+    const t = svgEl('text', {x:cx + 9, y:cy + 4, class:'ptlabel'}, c.name);
+    scatter.appendChild(t);
+    let bb;
+    try { bb = t.getBBox(); } catch (e) { bb = {width:c.name.length * 9, height:12}; }
+    const w = bb.width || c.name.length * 9;
+    const h = bb.height || 12;
+    const cands = [
+      [cx + 9, cy + 4, 'start'],
+      [cx - 9, cy + 4, 'end'],
+      [cx + 4, cy - 11, 'start'],
+      [cx + 4, cy + 18, 'start']
+    ];
+    let done = false;
+    for (const [tx, ty, anchor] of cands) {
+      const left = anchor === 'end' ? tx - w : tx;
+      const rect = {l:left - 2, t:ty - h + 2, r:left + w + 2, b:ty + 4};
+      if (rect.l < x0 + 1 || rect.r > x1 - 1 || rect.t < y1 + 2 || rect.b > y0 - 2) continue;
+      if (placed.some(p => !(rect.r < p.l || rect.l > p.r || rect.b < p.t || rect.t > p.b))) continue;
+      t.setAttribute('x', tx);
+      t.setAttribute('y', ty);
+      t.setAttribute('text-anchor', anchor);
+      placed.push(rect);
+      done = true;
+      break;
+    }
+    if (!done) placed.push({l:cx + 7, t:cy - h + 2, r:cx + 9 + w, b:cy + 4});
+  });
+}
+
+function renderEff(sel) {
+  effChart.innerHTML = '';
+  effTitle.textContent = `${PREC_LABEL[state.precision]} 每瓦算力`;
+  const unit = PREC_UNIT[state.precision] + '/W';
+  const items = sel.map(c => ({c, v:eff(c)})).filter(x => x.v != null && Number.isFinite(x.v)).sort((a,b) => b.v - a.v);
+  if (items.length < 2) {
+    effChart.appendChild(svgEl('text', {x:280, y:150, 'text-anchor':'middle', class:'empty'}, '所选型号缺少对应算力或功耗数据'));
+    return;
+  }
+  const W = 560, H = 300, L = 140, R = 70, T = 34, B = 30;
+  const plotW = W - L - R;
+  const max = Math.max(...items.map(i => i.v)) * 1.12;
+  const rowH = 32;
+  const startY = T + Math.max(0, ((H - T - B) - items.length * rowH) / 2);
+
+  [0, 0.25, 0.5, 0.75, 1].forEach(f => {
+    const gx = L + plotW * f;
+    effChart.appendChild(svgEl('line', {x1:gx, y1:T - 4, x2:gx, y2:H - B, class:f === 0 ? 'axis' : 'gridline'}));
+    if (f > 0) effChart.appendChild(svgEl('text', {x:gx, y:H - B + 14, 'text-anchor':'middle', class:'tick'}, (max * f).toFixed(2)));
+  });
+  effChart.appendChild(svgEl('text', {x:W - R, y:16, 'text-anchor':'end', class:'tick'}, unit));
+
+  items.forEach(({c, v}, i) => {
+    const yTop = startY + i * rowH + 6;
+    const barH = 18;
+    const bw = (v / max) * plotW;
+    const label = c.name.length > 13 ? c.name.slice(0, 12) + '…' : c.name;
+    effChart.appendChild(svgEl('text', {x:L - 10, y:yTop + barH / 2 + 4, 'text-anchor':'end', class:'barrow'}, label));
+    effChart.appendChild(svgEl('rect', {x:L, y:yTop, width:Math.max(2, bw), height:barH, rx:1.5, class:'bar'}));
+    effChart.appendChild(svgEl('text', {x:L + bw + 7, y:yTop + barH / 2 + 4, class:'barval'}, v.toFixed(2)));
+  });
+}
+
+function renderCompare() {
+  const sel = selectedCards();
+  compareSection.hidden = sel.length < 2;
+  if (sel.length < 2) return;
+  compareSub.textContent = `${sel.length} 款 · 算力口径 ${PREC_LABEL[state.precision]} · 更新 2026-10-30`;
+  renderTable(sel);
+  renderScatter();
+  renderEff(sel);
+}
+
+function renderAll() {
+  renderGrid();
+  renderDock();
+  renderCompare();
+  estRender();
+}
+
+function toggleSelect(id) {
+  if (state.selected.has(id)) state.selected.delete(id);
+  else if (state.selected.size >= MAX_SEL) {
+    toast(`最多同时对比 ${MAX_SEL} 款`);
+    return;
+  } else state.selected.add(id);
+  syncGridSelection();
+  renderDock();
+  renderCompare();
+  estHighlightSync();
+  saveState();
+}
+
+function clearSel() {
+  state.selected.clear();
+  syncGridSelection();
+  renderDock();
+  renderCompare();
+  estHighlightSync();
+  saveState();
+}
+
+let lastFocus = null;
+
+function openModal(id) {
+  const c = BY_ID[id];
+  if (!c) return;
+  lastFocus = document.activeElement;
+  const derived = c.derived || [];
+  const comp = [
+    ['FP16 / BF16', c.fp16, 'fp16', 'TFLOPS'],
+    ['FP8', c.fp8, 'fp8', 'TFLOPS'],
+    ['FP4', c.fp4, 'fp4', 'TFLOPS'],
+    ['INT8', c.int8, 'int8', 'TOPS']
+  ].map(([label, v, key, unit]) =>
+    `<div><dt>${label}</dt><dd>${v == null ? '—' : fmtNum(v) + ' ' + unit + (derived.includes(key) ? ' †' : '')}</dd></div>`
+  ).join('');
+
+  modal.innerHTML = `<div class="modal-panel">
+    <button class="modal-close" type="button" data-close aria-label="关闭">×</button>
+    <div class="m-vendor">${VENDOR_LABEL[c.vendor]}${c.status === 'ramp' ? ' · 爬坡中' : ''}</div>
+    <h2>${c.name}</h2>
+    <p class="m-arch">${c.arch} · ${c.year} · ${c.formLabel}</p>
+    <dl class="m-grid">
+      <div><dt>显存</dt><dd>${c.mem} <small>GB</small></dd></div>
+      <div><dt>显存类型</dt><dd>${c.memType}</dd></div>
+      <div><dt>显存带宽</dt><dd>${fmtBw(c.bw)}</dd></div>
+      ${comp}
+      <div><dt>卡间互联</dt><dd class="m-small">${c.link}</dd></div>
+      <div><dt>整卡功耗</dt><dd>${c.power == null ? '未公开' : fmtNum(c.power) + ' W'}</dd></div>
+      <div><dt>数据来源</dt><dd class="m-small">${SRC_LABEL[c.src]}</dd></div>
+    </dl>
+    <p class="m-pos">${c.pos}</p>
+    <p class="m-note">${c.note}</p>
+    <div class="m-actions">
+      <button class="primarybtn" type="button" data-toggle="${c.id}">${state.selected.has(c.id) ? '移出对比' : '加入对比'}</button>
+      <button class="ghostbtn" type="button" data-close>关闭</button>
+      <span class="m-src" style="margin:0">算力为稠密峰值，† 为折算或回推值（非官方）</span>
+    </div>
+  </div>`;
+  modal.classList.add('open');
+  modal.hidden = false;
+  document.body.classList.add('locked');
+  const btn = modal.querySelector('[data-close]');
+  if (btn) btn.focus();
+}
+
+function closeModal() {
+  modal.hidden = true;
+  modal.innerHTML = '';
+  modal.classList.remove('open');
+  document.body.classList.remove('locked');
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+
+function updateModalToggle(id) {
+  const b = modal.querySelector(`[data-toggle="${id}"]`);
+  if (b) b.textContent = state.selected.has(id) ? '移出对比' : '加入对比';
+}
+
+let toastTimer = null;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toastEl.hidden = true; }, 2200);
+}
+
+function exportCSV() {
+  const sel = selectedCards();
+  if (sel.length < 2) return;
+  const rows = rowsForState().filter(r => r.k !== 'src');
+  const head = ['参数', ...sel.map(c => `${VENDOR_LABEL[c.vendor]} ${c.name}`)];
+  const body = rows.map(r => [
+    r.label + (r.unit ? `（${r.unit}）` : ''),
+    ...sel.map(c => String(r.get(c) ?? '—'))
+  ]);
+  const csv = [head, ...body]
+    .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+    .join('\r\n');
+  const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ai-accelerator-compare.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast('已导出 CSV');
+}
+
+function resetFilters() {
+  state.vendors.clear();
+  state.forms.clear();
+  state.scenes.clear();
+  state.q = '';
+  state.includeRamp = true;
+  qInput.value = '';
+  includeRampBox.checked = true;
+  renderChips();
+  renderAll();
+}
+
+function bindChipGroup(el, set) {
+  el.addEventListener('click', e => {
+    const b = e.target.closest('[data-value]');
+    if (!b) return;
+    const v = b.dataset.value;
+    if (set.has(v)) set.delete(v);
+    else set.add(v);
+    renderChips();
+    renderAll();
+  });
+}
+
+bindChipGroup(vendorChips, state.vendors);
+bindChipGroup(formChips, state.forms);
+bindChipGroup(sceneChips, state.scenes);
+
+dimChips.addEventListener('click', e => {
+  const b = e.target.closest('[data-dim]');
+  if (!b) return;
+  const v = b.dataset.dim;
+  if (state.groups.has(v)) state.groups.delete(v);
+  else state.groups.add(v);
+  renderDims();
+  renderTable(selectedCards());
+});
+
+grid.addEventListener('click', e => {
+  const detail = e.target.closest('[data-detail]');
+  if (detail) {
+    e.preventDefault();
+    openModal(detail.dataset.detail);
+    return;
+  }
+  const card = e.target.closest('[data-id]');
+  if (card) toggleSelect(card.dataset.id);
+});
+
+grid.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const card = e.target.closest('[data-id]');
+  if (!card || e.target.closest('[data-detail]')) return;
+  e.preventDefault();
+  toggleSelect(card.dataset.id);
+});
+
+dock.addEventListener('click', e => {
+  const rm = e.target.closest('[data-remove]');
+  if (rm) {
+    toggleSelect(rm.dataset.remove);
+    return;
+  }
+  if (e.target.closest('#dockClear')) clearSel();
+  if (e.target.closest('#dockCompare')) {
+    if (selectedCards().length < 2) toast('至少选择 2 款才能对比');
+    else {
+      const toolbarH = $('#toolbar').offsetHeight;
+      const top = compareSection.getBoundingClientRect().top + window.scrollY - toolbarH - 16;
+      window.scrollTo({top, behavior:'smooth'});
+    }
+  }
+});
+
+cmpTable.addEventListener('click', e => {
+  const b = e.target.closest('[data-remove]');
+  if (b) toggleSelect(b.dataset.remove);
+});
+
+modal.addEventListener('click', e => {
+  if (e.target === modal || e.target.closest('[data-close]')) {
+    closeModal();
+    return;
+  }
+  const t = e.target.closest('[data-toggle]');
+  if (t) {
+    toggleSelect(t.dataset.toggle);
+    updateModalToggle(t.dataset.toggle);
+  }
+});
+
+qInput.addEventListener('input', () => {
+  state.q = qInput.value.trim().toLowerCase();
+  renderAll();
+});
+
+precisionSel.addEventListener('change', () => {
+  state.precision = precisionSel.value;
+  renderAll();
+  saveState();
+});
+
+sortSel.addEventListener('change', () => {
+  state.sort = sortSel.value;
+  renderAll();
+  saveState();
+});
+
+includeRampBox.addEventListener('change', () => {
+  state.includeRamp = includeRampBox.checked;
+  renderAll();
+});
+
+diffOnlyBox.addEventListener('change', () => {
+  state.diffOnly = diffOnlyBox.checked;
+  renderTable(selectedCards());
+});
+
+$('#resetBtn').addEventListener('click', resetFilters);
+$('#clearBtn').addEventListener('click', clearSel);
+$('#exportBtn').addEventListener('click', exportCSV);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !modal.hidden) {
+    closeModal();
+    return;
+  }
+  if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) {
+    e.preventDefault();
+    qInput.focus();
+  }
+});
+
+window.addEventListener('resize', updateScrollHint);
+
+/* ---------- 模型资源估算 ---------- */
+const MODELS = [
+  {id:'qwen38-2t4-a95b', group:'通义千问 Qwen3.8', name:'Qwen3.8-2.4T-A95B（开源）', total:2400, act:95,
+   src:'官方 · 阿里云百炼模型列表「总参数 2.4 万亿、每步激活约 950 亿」，2026-08 发布'},
+  {id:'qwen38-27b',     group:'通义千问 Qwen3.8', name:'Qwen3.8-27B（Dense）',   total:27,   act:null,
+   src:'官方 · 阿里云百炼模型列表，原生视觉语言 Dense 模型，2026-08'},
+  {id:'qwen36-35b-a3b', group:'通义千问 Qwen3.5 / 3.6', name:'Qwen3.6-35B-A3B', total:35,   act:3,
+   src:'官方 · 阿里云百炼模型列表命名口径 35B-A3B，2026-04'},
+  {id:'qwen35-397b',    group:'通义千问 Qwen3.5 / 3.6', name:'Qwen3.5-397B-A17B', total:397, act:17,
+   src:'官方 · 阿里云百炼模型列表命名口径 397B-A17B，2026-02'},
+  {id:'qwen35-122b',    group:'通义千问 Qwen3.5 / 3.6', name:'Qwen3.5-122B-A10B', total:122, act:10,
+   src:'官方 · 阿里云百炼模型列表命名口径 122B-A10B，2026-02'},
+  {id:'qwen3-06b',      group:'通义千问 Qwen3',   name:'Qwen3-0.6B',            total:0.6,  act:null,
+   src:'官方 · Qwen3 稠密系列，微调入门尺寸'},
+  {id:'qwen3-8b',       group:'通义千问 Qwen3',   name:'Qwen3-8B',              total:8.2,  act:null,
+   src:'官方 · Qwen3 稠密系列'},
+  {id:'qwen3-30b-a3b',  group:'通义千问 Qwen3',   name:'Qwen3-30B-A3B',         total:30.5, act:3.3,
+   src:'官方 · Qwen3 MoE 系列，总参数 30.5B / 激活 3.3B'},
+  {id:'qwen3-235b',     group:'通义千问 Qwen3',   name:'Qwen3-235B-A22B',       total:235,  act:22,
+   src:'官方 · Qwen3 旗舰 MoE，总参数 235B / 激活 22B'},
+  {id:'ds-v41-flash',   group:'DeepSeek',         name:'DeepSeek-V4.1-Flash',   total:552,  act:16,
+   src:'官方 · 阿里云百炼「552B 总参数 MoE，输入激活 8B、输出激活 16B」；表中激活取输出侧 16B'},
+  {id:'ds-v4-pro',      group:'DeepSeek',         name:'DeepSeek-V4-Pro',       total:1600, act:49,
+   src:'官方 · 阿里云百炼「总参 1.6T、激活 49B」，2026-05'},
+  {id:'ds-v3',          group:'DeepSeek',         name:'DeepSeek-V3 / R1',      total:671,  act:37,
+   src:'官方 · DeepSeek-V3 技术报告，总参数 671B / 激活 37B（上一代，私有化仍大量在跑）'},
+  {id:'glm-53',         group:'智谱 GLM',         name:'GLM-5.3',               total:744,  act:40,
+   src:'媒体口径 · 总参数约 743–744B、每 token 激活约 39–40B，智谱官网未公布架构数值'},
+  {id:'glm-53-flash',   group:'智谱 GLM',         name:'GLM-5.3-Flash（开源）',  total:320,  act:18,
+   src:'媒体口径 · 320B 总参数 / 18B 激活，MIT 开源，2026-08'},
+  {id:'kimi-k31-pro',   group:'月之暗面 Kimi',    name:'Kimi K3.1 Pro',         total:3000, act:null,
+   src:'官方 · Kimi 开放平台「3 万亿级参数、1M token 上下文」；激活参数官方未公布，估算按总参数取值'},
+  {id:'kimi-k3',        group:'月之暗面 Kimi',    name:'Kimi K3（开源）',        total:2800, act:104,
+   src:'官方 · 阿里云百炼「2.8 万亿参数」；激活 104B 为媒体口径'},
+  {id:'mm-m31-flash',   group:'MiniMax',          name:'MiniMax M3.1-Flash（开源）', total:428, act:23,
+   src:'媒体口径 · 总参数 428B / 激活 23B，2026-10 开源权重'},
+  {id:'hy-hy3',         group:'腾讯混元',         name:'混元 Hy3（开源）',        total:295,  act:21,
+   src:'媒体口径 · MoE 总参数 295B / 激活 21B，2026-07 开源'},
+  {id:'hy-hy4',         group:'腾讯混元',         name:'混元 Hy4 preview（开源）', total:770,  act:49,
+   src:'媒体口径 · 总参数 770B / 激活 49B，2026-08 开源'},
+  {id:'llama-31-8b',    group:'Meta Llama',       name:'Llama-3.1-8B',          total:8.0,  act:null,
+   src:'官方 · Meta Llama 3.1 稠密 8B'},
+  {id:'llama-33-70b',   group:'Meta Llama',       name:'Llama-3.3-70B',         total:70.6, act:null,
+   src:'官方 · Meta Llama 3.3 稠密 70B'}
+];
+const EST_SCENES = {
+  infer:  {label:'推理部署',      trainable:0,    base:null},
+  full:   {label:'全参微调',      trainable:1,    base:2},
+  lora:   {label:'LoRA 微调',     trainable:0.01, base:2},
+  qlora8: {label:'QLoRA（8bit）', trainable:0.01, base:1},
+  qlora4: {label:'QLoRA（4bit）', trainable:0.01, base:0.5}
+};
+const EST_PRESET = ['h20','h100-sxm','h200','b200','b300','mi300x','mi355x','mi350p','gaudi3-oam',
+  'ascend910c','atlas-300t-a2','atlas-350','atlas-300i-a2','zhenwu810e','zhenwu-m890','mlu590','p800','s5000','c500','k100'];
+const PREC_BYTES_LABEL = {2:'BF16 / FP16', 1:'FP8 / INT8', 0.5:'FP4 / INT4'};
+
+const estModelSel = $('#estModel');
+const estSceneSel = $('#estScene');
+const estPrecSel = $('#estPrec');
+const estPrecWrap = $('#estPrecWrap');
+const estSeqInput = $('#estSeq');
+const estConcInput = $('#estConc');
+const estConcWrap = $('#estConcWrap');
+const estBatchInput = $('#estBatch');
+const estBatchWrap = $('#estBatchWrap');
+const estOptSel = $('#estOpt');
+const estOptWrap = $('#estOptWrap');
+const estCardSel = $('#estCard');
+const estUtilInput = $('#estUtil');
+const estNodeSel = $('#estNodes');
+const estTable = $('#estTable');
+const estAnswer = $('#estAnswer');
+const estBasis = $('#estBasis');
+const estCmp = $('#estCmp');
+
+const gb = v => v >= 100 ? Math.round(v).toLocaleString('en-US') : v >= 10 ? trimZero(v.toFixed(1)) : trimZero(v.toFixed(2));
+const clampNum = (el, min, max, def) => {
+  const v = parseFloat(el.value);
+  return Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : def;
+};
+
+function estRead() {
+  const m = MODELS.find(x => x.id === estModelSel.value) || MODELS[0];
+  const sceneKey = estSceneSel.value;
+  const sc = EST_SCENES[sceneKey];
+  const seq = clampNum(estSeqInput, 128, 262144, 2048);
+  const util = clampNum(estUtilInput, 50, 100, 90) / 100;
+  const perMachine = parseInt(estNodeSel.value, 10);
+  const isTrain = sceneKey !== 'infer';
+  const paramBytes = sc.base != null ? sc.base : parseFloat(estPrecSel.value);
+  const n = isTrain ? clampNum(estBatchInput, 1, 4096, 1) : clampNum(estConcInput, 1, 4096, 1);
+  const optFloats = isTrain ? parseFloat(estOptSel.value) : 0;
+  const P = m.total, A = m.act ?? m.total;
+  const actParams = sceneKey === 'full' ? P : A;
+  const scale = n * (seq / 2048);
+
+  const parts = [];
+  parts.push({k:'权重', why:`${gb(P)}B 参数 × ${paramBytes} 字节`, v:P * paramBytes});
+  if (isTrain) {
+    parts.push({k:'梯度', why:`可训练 ${gb(P * sc.trainable)}B × 2 字节（${sc.trainable * 100}% 参数）`, v:P * sc.trainable * 2});
+    parts.push({k:'优化器状态', why:`可训练 ${gb(P * sc.trainable)}B × 4 字节 × ${optFloats} 份（FP32）`, v:P * sc.trainable * 4 * optFloats});
+  }
+  parts.push({k:'激活值', why:`${gb(actParams)}B × 2 字节 × 10% × ${n} × (${seq}/2048)`, v:actParams * 2 * 0.1 * scale});
+  if (!isTrain) parts.push({k:'KV Cache', why:`${gb(A)}B × 2 字节 × 10% × ${n} × (${seq}/2048)`, v:A * 2 * 0.1 * scale});
+  parts.push({k:'其他', why:'框架、CUDA / 驱动上下文、输入与缓冲', v:2});
+  const total = parts.reduce((s, p) => s + p.v, 0);
+
+  return {m, sceneKey, sc, seq, util, perMachine, paramBytes, n, optFloats, P, A, actParams, isTrain, parts, total};
+}
+
+function estCards(r, c) {
+  const usable = c.mem * r.util;
+  const cards = Math.max(1, Math.ceil(r.total / usable));
+  return {usable, cards, machines: Math.ceil(cards / r.perMachine)};
+}
+
+function estPrecField(paramBytes) {
+  return paramBytes === 0.5 ? 'fp4' : paramBytes === 1 ? 'fp8' : 'fp16';
+}
+
+function estSupport(c, paramBytes) {
+  const k = estPrecField(paramBytes);
+  if (c[k] != null) return null;
+  if (k === 'int8') return null;
+  const alt = ['fp16','fp8','fp4','int8'].find(x => c[x] != null);
+  return `${c.name} 未公布 ${PREC_LABEL[k]} 稠密算力${alt ? `（已公布 ${PREC_LABEL[alt]}）` : ''}，低精度权重能否跑满需按软件栈复核`;
+}
+
+function estRender() {
+  const r = estRead();
+  estPrecWrap.hidden = r.sc.base != null;
+  estConcWrap.hidden = r.isTrain;
+  estBatchWrap.hidden = !r.isTrain;
+  estOptWrap.hidden = !r.isTrain;
+
+  estTable.innerHTML = `<thead><tr><th class="rowhead">显存构成</th><th>口径</th><th>GB</th></tr></thead><tbody>${
+    r.parts.map(p => `<tr><th class="rowhead">${p.k}</th><td>${p.why}</td><td>${gb(p.v)}</td></tr>`).join('')
+  }<tr class="est-total"><th class="rowhead">合计</th><td>单卡可用按 ${Math.round(r.util * 100)}% 计算</td><td>${gb(r.total)}</td></tr></tbody>`;
+
+  const c = BY_ID[estCardSel.value] || BY_ID[EST_PRESET[0]];
+  const e = estCards(r, c);
+  const powerW = c.power != null && c.power ? e.cards * c.power : null;
+  const powerTxt = powerW == null ? null : powerW >= 1000 ? `${trimZero((powerW / 1000).toFixed(2))} kW` : `${powerW} W`;
+  const warns = [];
+  if (e.cards > r.perMachine) warns.push(`需要跨机：${e.cards} 张 > 每台 ${r.perMachine} 卡，实际还取决于互联带宽、并行策略与框架适配`);
+  const sp = estSupport(c, r.paramBytes);
+  if (sp) warns.push(sp);
+  if (c.status === 'ramp') warns.push(`${c.name} 尚未量产出货，供货与软件成熟度需单独确认`);
+
+  estAnswer.innerHTML = `
+    <p class="k">${r.m.name} · ${r.sc.label} · 序列 ${seqLabel(r.seq)} · ${r.isTrain ? `batch ${r.n}` : `并发 ${r.n}`}</p>
+    <p class="est-big">${e.cards}<em>张 ${c.name}</em></p>
+    <p class="est-line">需求合计 <b class="est-accent">${gb(r.total)} GB</b> ÷ 单卡可用 ${gb(e.usable)} GB（${c.mem} GB × ${Math.round(r.util * 100)}%）</p>
+    <p class="est-line">${e.cards <= r.perMachine ? `一台 ${r.perMachine} 卡机内即可放下` : `需 ${e.machines} 台 ${r.perMachine} 卡机（共 ${e.machines * r.perMachine} 个卡位）`}${powerTxt ? ` · 整卡功耗合计约 ${powerTxt}` : ''}</p>
+    ${r.m.src ? `<p class="est-src">参数出处：${r.m.src}</p>` : ''}
+    ${warns.length ? `<p class="est-warn">${warns.join('；')}。</p>` : ''}`;
+
+  estBasis.textContent = `估算口径：权重 = 参数量 × 每参数字节；梯度 = 可训练参数 × 2；优化器状态 = 可训练参数 × 4 字节 × 份数；激活与 KV Cache 各按模型显存 10% 为基线（batch/并发 1、序列 2048、2 字节），随 batch × 序列线性放大；MoE 权重按总参数、激活与 KV 按激活参数；LoRA / QLoRA 可训练参数取总参数 1%；其他开销固定 2 GB。数字为理论下界，未含并行切分冗余、检查点重算与通信缓冲。`;
+
+  estRenderCmp(r);
+}
+
+const seqLabel = s => s >= 1024 ? `${trimZero((s / 1024).toFixed(2))}K` : `${s}`;
+
+function estRenderCmp(r) {
+  const ids = Array.from(new Set([...EST_PRESET, ...state.selected]));
+  const rows = ids.map(id => BY_ID[id]).filter(c => c && c.mem != null)
+    .map(c => ({c, e: estCards(r, c)}))
+    .sort((a, b) => a.e.cards - b.e.cards || b.e.usable - a.e.usable);
+  estCmp.innerHTML = `<thead><tr><th class="rowhead">单卡</th><th>显存</th><th>按 ${Math.round(r.util * 100)}% 可用</th><th>需要张数</th><th>整机</th><th>整卡功耗合计</th></tr></thead><tbody>${
+    rows.map(({c, e}) => {
+      const kw = c.power ? e.cards * c.power / 1000 : null;
+      return `<tr>
+      <th class="rowhead"><span class="ch-vendor">${VENDOR_LABEL[c.vendor]}</span><div class="ch-name">${state.selected.has(c.id) ? '☆ ' : ''}${c.name}</div></th>
+      <td>${c.mem}<span class="est-iu">GB</span></td>
+      <td>${gb(e.usable)}<span class="est-iu">GB</span></td>
+      <td class="${e.cards === Math.min(...rows.map(x => x.e.cards)) ? 'best' : ''}">${e.cards}<span class="est-iu">张</span></td>
+      <td>${e.machines}<span class="est-iu">台 × ${r.perMachine}</span></td>
+      <td>${kw == null ? '—' : `${trimZero(kw.toFixed(2))}<span class="est-iu">kW</span>`}</td>
+    </tr>`;
+    }).join('')
+  }</tbody>`;
+}
+
+function estHighlightSync() {
+  estRenderCmp(estRead());
+}
+
+function estCardOptions() {
+  const byVendor = [...DATA].sort((a, b) => V_INDEX(a.vendor) - V_INDEX(b.vendor) || b.year - a.year || a.name.localeCompare(b.name, 'zh'));
+  const groups = {};
+  byVendor.forEach(c => {
+    if (c.mem == null) return;
+    (groups[c.vendor] = groups[c.vendor] || []).push(`<option value="${c.id}">${c.name} · ${c.mem}GB</option>`);
+  });
+  estCardSel.innerHTML = VENDOR_ORDER.filter(v => groups[v]).map(v =>
+    `<optgroup label="${VENDOR_LABEL[v]}">${groups[v].join('')}</optgroup>`).join('');
+  estCardSel.value = 'h20';
+}
+
+const pB = v => v >= 1000 ? `${trimZero((v / 1000).toFixed(2))}T` : `${gb(v)}B`;
+estModelSel.innerHTML = MODELS.reduce((acc, m) => {
+  if (acc.cur !== m.group) {
+    if (acc.i > 0) acc.html += '</optgroup>';
+    acc.html += `<optgroup label="${m.group}">`;
+    acc.cur = m.group;
+    acc.i++;
+  }
+  acc.html += `<option value="${m.id}">${m.name} · ${pB(m.total)}${m.act ? ` / ${pB(m.act)}` : ''}</option>`;
+  return acc;
+}, {html:'', cur:null, i:0}).html + '</optgroup>';
+estModelSel.value = 'qwen38-27b';
+estCardOptions();
+['change', 'input'].forEach(ev => {
+  [estModelSel, estSceneSel, estPrecSel, estSeqInput, estConcInput, estBatchInput, estOptSel, estCardSel, estUtilInput, estNodeSel]
+    .forEach(el => el.addEventListener(ev, estRender));
+});
+
+loadState();
+precisionSel.value = state.precision;
+sortSel.value = state.sort;
+includeRampBox.checked = state.includeRamp;
+countTotal.innerHTML = `<b>${DATA.length}</b> 款 · ${new Set(DATA.map(c => c.vendor)).size} 家厂商`;
+renderChips();
+renderDims();
+renderAll();
+</script>
+</body>
+</html>
