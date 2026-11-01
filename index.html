@@ -354,8 +354,7 @@ body.locked{overflow:hidden}
       <label class="ef"><span>单卡可用比例</span><input id="estUtil" type="number" min="50" max="100" step="5" value="90"><small>扣除框架与碎片</small></label>
       <label class="ef"><span>整机卡数</span><select id="estNodes">
         <option value="8">8 卡机</option>
-        <option value="4">4 卡机</option>
-        <option value="2">2 卡机</option>
+        <option value="16">16 卡机</option>
         <option value="1">单卡</option>
       </select></label>
     </div>
@@ -1485,7 +1484,9 @@ function estRender() {
   const powerW = c.power != null && c.power ? e.cards * c.power : null;
   const powerTxt = powerW == null ? null : powerW >= 1000 ? `${trimZero((powerW / 1000).toFixed(2))} kW` : `${powerW} W`;
   const warns = [];
-  if (e.cards > r.perMachine) warns.push(`需要跨机：${e.cards} 张 > 每台 ${r.perMachine} 卡，实际还取决于互联带宽、并行策略与框架适配`);
+  if (e.cards > r.perMachine) warns.push(r.perMachine === 1
+    ? `按单卡部署需 ${e.cards} 个卡位，实际还取决于互联带宽、并行策略与框架适配`
+    : `需要跨机：${e.cards} 张 > 每台 ${r.perMachine} 卡，实际还取决于互联带宽、并行策略与框架适配`);
   const sp = estSupport(c, r.paramBytes);
   if (sp) warns.push(sp);
   if (c.status === 'ramp') warns.push(`${c.name} 尚未量产出货，供货与软件成熟度需单独确认`);
@@ -1494,7 +1495,7 @@ function estRender() {
     <p class="k">${r.m.name} · ${r.sc.label} · 序列 ${seqLabel(r.seq)} · ${r.isTrain ? `batch ${r.n}` : `并发 ${r.n}`}</p>
     <p class="est-big">${e.cards}<em>张 ${c.name}</em></p>
     <p class="est-line">需求合计 <b class="est-accent">${gb(r.total)} GB</b> ÷ 单卡可用 ${gb(e.usable)} GB（${c.mem} GB × ${Math.round(r.util * 100)}%）</p>
-    <p class="est-line">${e.cards <= r.perMachine ? `一台 ${r.perMachine} 卡机内即可放下` : `需 ${e.machines} 台 ${r.perMachine} 卡机（共 ${e.machines * r.perMachine} 个卡位）`}${powerTxt ? ` · 整卡功耗合计约 ${powerTxt}` : ''}</p>
+    <p class="est-line">${r.perMachine === 1 ? `单卡部署，共需 ${e.cards} 张` : e.cards <= r.perMachine ? `一台 ${r.perMachine} 卡机内即可放下` : `需 ${e.machines} 台 ${r.perMachine} 卡机（共 ${e.machines * r.perMachine} 个卡位）`}${powerTxt ? ` · 整卡功耗合计约 ${powerTxt}` : ''}</p>
     ${r.m.src ? `<p class="est-src">参数出处：${r.m.src}</p>` : ''}
     ${warns.length ? `<p class="est-warn">${warns.join('；')}。</p>` : ''}`;
 
