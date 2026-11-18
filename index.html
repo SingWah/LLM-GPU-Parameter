@@ -184,6 +184,10 @@ details[open] summary::after{content:"−"}
 .m-grid dd small{font-size:10px;color:var(--faint);font-weight:400;margin-left:2px}
 .m-pos{font-size:13px;color:#3b424c;margin:0 0 10px;line-height:1.6}
 .m-note{font-size:11.5px;color:var(--muted);background:#fafafb;border-left:2px solid var(--line-strong);padding:8px 10px;margin:0 0 12px}
+.m-nv{border-top:1px solid var(--line);padding-top:12px;margin:0 0 12px}
+.m-nv-k{font-size:10px;letter-spacing:.06em;color:var(--faint)}
+.m-nv-ref{display:block;font-size:15px;font-weight:600;color:var(--accent);margin:3px 0 5px}
+.m-nv-why{font-size:11.5px;color:var(--muted);line-height:1.6;margin:0}
 .m-src{font-size:11px;color:var(--faint);margin:0 0 16px}
 .m-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .m-link{font-size:12px;text-decoration:none}
@@ -240,7 +244,7 @@ body.locked{overflow:hidden}
     </div>
     <div class="mast-meta">
       <span id="countTotal">—</span>
-      <span>数据截至 2026-10</span>
+      <span>数据截至 2026-11</span>
     </div>
   </div>
 </header>
@@ -443,11 +447,11 @@ const DATA = [
     pos:'Blackwell Ultra，288GB 大显存推理', note:'FP4 另有 15 PFLOPS 口径；HGX 版本功耗可配置至 1100W。', src:'mixed'
   },
   {
-    id:'rubin', name:'Rubin VR200', vendor:'nvidia', arch:'Vera Rubin', year:2026, status:'ramp',
+    id:'rubin', name:'Rubin VR200', vendor:'nvidia', arch:'Vera Rubin', year:2026, status:'ship',
     formLabel:'SXM（NVLink 6）', forms:['SXM'], scenes:['train','infer'],
-    mem:288, memType:'HBM4', bw:22, fp16:null, fp8:null, fp4:20000, int8:null,
-    link:'NVLink 6 · 3.6 TB/s', power:1800,
-    pos:'新一代旗舰，HBM4 + NVLink 6', note:'标准版 1800W / 增强版 2300W；FP4 40 PFLOPS 为稀疏口径，表中折半。', src:'mixed', derived:['fp4']
+    mem:288, memType:'HBM4', bw:19.2, fp16:4000, fp8:17500, fp4:35000, int8:null,
+    link:'NVLink 6 · 3 TB/s', power:null,
+    pos:'新一代旗舰，HBM4 + NVLink 6', note:'官方单卡规格取稠密（高密度）口径：NVFP4 训练 35、FP8/FP6 17.5、FP16/BF16 4 PFLOPS；NVFP4 推理 50 PFLOPS 为稀疏口径，表中不取。288GB HBM4 / 19.2TB/s，NVLink 6 单卡 3TB/s，官方已全面量产；单卡 TDP 官方未公布（媒体称标准版约 1800W / 增强版 2300W），规格表无 INT8 一行。', src:'official'
   },
   {
     id:'l40s', name:'L40S', vendor:'nvidia', arch:'Ada Lovelace', year:2023, status:'ship',
@@ -468,196 +472,308 @@ const DATA = [
     formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
     mem:192, memType:'HBM3', bw:5.3, fp16:1307, fp8:2615, fp4:null, int8:2615,
     link:'Infinity Fabric · 896 GB/s', power:750,
-    pos:'192GB 大显存，推理性价比', note:'FP16 1,307 / FP8 2,615 TFLOPS 为稠密值。', src:'official'
+    pos:'192GB 大显存，推理性价比', note:'FP16 1,307 / FP8 2,615 TFLOPS 为稠密值。', nv:{ref:'H100 SXM5 / H200 SXM', why:'媒体口径：AMD 发布时正面对标 H100（称大模型训练性能等同、推理吞吐更高），192GB 显存为 H100 80GB 的 2.4 倍、带宽 5.3 vs 3.35TB/s；H200 上市后亦纳入对照。'}, src:'official'
   },
   {
     id:'mi325x', name:'MI325X', vendor:'amd', arch:'CDNA 3', year:2024, status:'ship',
     formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
     mem:256, memType:'HBM3e', bw:6.0, fp16:1307, fp8:2615, fp4:null, int8:2615,
     link:'Infinity Fabric · 896 GB/s', power:1000,
-    pos:'256GB 显存，推理 / 微调', note:'与 MI300X 同算力，显存容量与带宽提升。', src:'official'
+    pos:'256GB 显存，推理 / 微调', note:'与 MI300X 同算力，显存容量与带宽提升。', nv:{ref:'H200 SXM', why:'媒体口径：AMD 明确对标 H200，256GB 显存超 H200 141GB、带宽 6 vs 4.8TB/s、算力相同；MLPerf Inference v5.0 实测 MI325X 仍略落后 H200。'}, src:'official'
   },
   {
     id:'mi350x', name:'MI350X', vendor:'amd', arch:'CDNA 4', year:2025, status:'ship',
     formLabel:'OAM（风冷）', forms:['OAM'], scenes:['train','infer'],
-    mem:288, memType:'HBM3e', bw:8.0, fp16:2300, fp8:4600, fp4:9200, int8:null,
+    mem:288, memType:'HBM3e', bw:8.0, fp16:2300, fp8:4600, fp4:9200, int8:4600,
     link:'Infinity Fabric 7 × 144 GB/s', power:1000,
-    pos:'CDNA 4 风冷旗舰', note:'官方规格表稠密口径：FP16/BF16 矩阵 2.3、FP8 矩阵 4.6、MXFP4 9.2 PFLOPS（稀疏翻倍为 4.6 / 9.2 / 18.4），TBP 1000W；官方未列 INT8。', src:'official'
+    pos:'CDNA 4 风冷旗舰', note:'官方规格表稠密口径：FP16/BF16 矩阵 2.3、FP8 矩阵 4.6、MXFP4 9.2 PFLOPS、INT8 矩阵 4.6 POPs（稀疏翻倍为 4.6 / 9.2 / 18.4 / 9.2），TBP 1000W，OAM 模组。', nv:{ref:'B200 SXM', why:'媒体口径：AMD MI350 产品页直接对标 B200 SXM（288GB vs 180GB 显存、8TB/s 带宽、FP8/MXFP4 峰值相近）；CDNA 4 风冷旗舰。'}, src:'official'
   },
   {
     id:'mi355x', name:'MI355X', vendor:'amd', arch:'CDNA 4', year:2025, status:'ship',
     formLabel:'OAM（液冷）', forms:['OAM'], scenes:['train','infer'],
-    mem:288, memType:'HBM3e', bw:8.0, fp16:2500, fp8:5000, fp4:10100, int8:null,
+    mem:288, memType:'HBM3e', bw:8.0, fp16:2500, fp8:5000, fp4:10100, int8:5000,
     link:'Infinity Fabric 7 × 144 GB/s', power:1400,
-    pos:'CDNA 4 液冷旗舰，FP4 推理', note:'官方规格表稠密口径：FP16/BF16 矩阵 2.5、FP8 矩阵 5.0、MXFP4 10.1 PFLOPS（稀疏 5 / 10.1 / 20.2），TBP 1400W；与 MI350X 同显存同带宽，靠更高频率与液冷拉算力。', src:'official'
+    pos:'CDNA 4 液冷旗舰，FP4 推理', note:'官方规格表稠密口径：FP16/BF16 矩阵 2.5、FP8 矩阵 5.0、MXFP4 10.1 PFLOPS、INT8 矩阵 5 POPs（稀疏 5 / 10.1 / 20.2 / 10.1），TBP 1400W；与 MI350X 同显存同带宽，靠更高频率与液冷拉算力。', nv:{ref:'B200 SXM / B300 SXM', why:'媒体口径：AMD 官方对标 B200；288GB/8TB/s 与 B300 SXM 同档，MLPerf Inference 6.0 实测达八卡 B300 约 92–104%；液冷旗舰。'}, src:'official'
   },
   {
     id:'mi350p', name:'MI350P', vendor:'amd', arch:'CDNA 4', year:2025, status:'ship',
     formLabel:'PCIe 5.0 双槽加高', forms:['PCIe'], scenes:['infer'],
-    mem:144, memType:'HBM3e', bw:4.0, fp16:1150, fp8:2300, fp4:4600, int8:null,
+    mem:144, memType:'HBM3e', bw:4.0, fp16:1150, fp8:2300, fp4:4600, int8:2300,
     link:'PCIe 5.0 ×16（无 IF 卡间互联）', power:600,
-    pos:'CDNA 4 PCIe 推理卡，标准服务器可装', note:'官方规格表：144GB HBM3E、峰值带宽 4TB/s、FP16/BF16 矩阵 1.15、FP8 2.3、MXFP4 4.6 PFLOPS（均为稠密），TBP 600W 上限、可配置 450W；与 MI350X/MI355X 算力显存都不同，单列一行。官方未列 INT8。', src:'official'
+    pos:'CDNA 4 PCIe 推理卡，标准服务器可装', note:'官方规格表稠密口径：144GB HBM3E、峰值带宽 4TB/s、FP16/BF16 矩阵 1.15、FP8 2.3、MXFP4 4.6 PFLOPS、INT8 矩阵 2.3 POPs，TBP 600W 上限、可配置 450W，PCIe 插卡；与 MI350X/MI355X 算力显存都不同，单列一行。', nv:{ref:'H200 SXM', why:'媒体口径：AMD 官方对标 H200 NVL（PCIe 版，本页未收录，规格最接近 H200 SXM），称 FP16 算力高 43%、144GB 显存略超 141GB；PCIe 风冷推理卡，形态定位近 L40S 但显存大得多。'}, src:'official'
   },
   {
-    id:'mi450', name:'MI450 / MI455X', vendor:'amd', arch:'CDNA 5', year:2026, status:'ramp',
-    formLabel:'OAM（液冷）', forms:['OAM'], scenes:['train','infer'],
-    mem:432, memType:'HBM4', bw:23.3, fp16:5000, fp8:10050, fp4:20150, int8:null,
-    link:'UALink / UALoE · 3.6 TB/s', power:null,
-    pos:'432GB HBM4，Helios 机柜', note:'官方规格表：FP16/BF16 矩阵稠密 5、稀疏 10.1 PFLOPS，另列 FP8 20.1、MXFP4 40.3（对应稀疏口径，折半得稠密值）；显存 432GB HBM4 / 23.3TB/s，形态为 EAM 增强加速器模组而非标准 OAM，整卡 TBP 官方未公布，Helios 整机液冷。', src:'mixed', derived:['fp8','fp4']
+    id:'mi450', name:'MI455X', vendor:'amd', arch:'CDNA 5', year:2026, status:'ship',
+    formLabel:'EAM（液冷）', forms:['OAM'], scenes:['train','infer'],
+    mem:432, memType:'HBM4', bw:23.3, fp16:5000, fp8:20100, fp4:40300, int8:5000,
+    link:'UALoE 3.6 TB/s · UALink 600 GB/s', power:null,
+    pos:'432GB HBM4，Helios 机柜旗舰', note:'官方规格表稠密口径：MXFP4 40.3、FP8/MXFP8 20.1、FP16/BF16 矩阵 5、INT8 矩阵 5 POPs（FP16/INT8 稀疏翻倍 10.1；MXFP4/FP8 无稀疏后缀，即稠密值）；432GB HBM4（12 堆栈）/ 23.3TB/s，形态 EAM 增强加速器模组、直接液冷，Scale-up UALoE 3.6TB/s + Scale-out UALink 600GB/s；整卡 TBP 官方未公布，2026-07-23 发布，Helios 整机柜液冷。', nv:{ref:'Rubin VR200', why:'媒体口径：AMD 官方对标 NVIDIA Vera Rubin，称 MI455X 单卡 MLPerf 推理吞吐高至多 30%、432GB HBM4 比 Rubin 288GB 多 50%、带宽 23.3 vs 19.2TB/s；Helios 机柜对标 NVL72。'}, src:'official'
+  },
+  {
+    id:'mi450x', name:'MI450X', vendor:'amd', arch:'CDNA 5', year:2026, status:'ramp',
+    formLabel:'EAM（液冷）', forms:['OAM'], scenes:['train','infer'],
+    mem:288, memType:'HBM4', bw:23.3, fp16:5000, fp8:20100, fp4:40300, int8:5000,
+    link:'UALoE 3.6 TB/s · UALink 600 GB/s', power:null,
+    pos:'288GB HBM4，与 MI455X 同算力', note:'官方规格表稠密口径与 MI455X 相同：MXFP4 40.3、FP8 20.1、FP16/BF16 矩阵 5、INT8 5 POPs；显存 288GB HBM4（8 堆栈）/ 23.3TB/s，EAM 模组、直接液冷，UALoE 3.6TB/s + UALink 600GB/s；整卡 TBP 官方未公布，2026-11-12 发布。与 MI455X 算力相同、显存减半，单列一行。', nv:{ref:'Rubin VR200', why:'媒体口径：与 MI455X 同算力、显存减半至 288GB（与 Rubin VR200 容量相同），同属对标 Vera Rubin 的 MI450 系列，主打性价比；尚未量产出货。'}, src:'official'
+  },
+  {
+    id:'mi430x', name:'MI430X', vendor:'amd', arch:'CDNA 5', year:2027, status:'ramp',
+    formLabel:'未披露', forms:[], scenes:['train','infer'],
+    mem:432, memType:'HBM4', bw:23.3, fp16:null, fp8:null, fp4:9200, int8:null,
+    link:'未披露', power:null,
+    pos:'FP64 288 TFLOPS，HPC + 主权 AI', note:'官方公布：FP64 硬件峰值 288 TFLOPS（面向 HPC）、FP4/MXFP4 峰值 9.2 PFLOPS、432GB HBM4 / 23.3TB/s；面向科学计算与主权 AI，预计 2027 上市。FP16/FP8/INT8、互联、形态与整卡功耗官方未公布。', nv:{ref:'Rubin VR200', why:'编辑按规格匹配：FP64 取向的 HPC/主权 AI 卡（FP64 288 TFLOPS），432GB HBM4/23.3TB/s 与 MI455X 同；本页无 NVIDIA HPC 专卡，按显存与代际就近参考 Rubin VR200，FP64 定位不同、非性能等价。'}, src:'official'
   },
   {
     id:'gaudi3-oam', name:'Gaudi 3 HL-325L', vendor:'intel', arch:'Habana Gaudi 3', year:2024, status:'ship',
     formLabel:'OAM 2.0', forms:['OAM'], scenes:['train','infer'],
     mem:128, memType:'HBM2e', bw:3.7, fp16:1835, fp8:1835, fp4:null, int8:1835,
     link:'24×200GbE · 4.8 Tb/s', power:900,
-    pos:'以太网原生互联，训练 / 推理', note:'液冷版峰值 1200W；FP8 与 BF16 同速。', src:'official'
+    pos:'以太网原生互联，训练 / 推理', note:'液冷版峰值 1200W；FP8 与 BF16 同速。', nv:{ref:'H100 SXM5 / H200 SXM', why:'媒体口径：Intel 官方对标 H100（称 LLM 推理快 1.5 倍、训练快 40%、性价比约 2 倍），官网脚注以开放 RoCE 1200GB/s 对比 H100 封闭 NVLink 900GB/s；128GB 显存超 H100 80GB，带宽 3.7TB/s 低于 H200 4.8，第三方实测推理明显落后 H200。'}, src:'official'
   },
   {
     id:'gaudi3-pcie', name:'Gaudi 3 HL-338', vendor:'intel', arch:'Habana Gaudi 3', year:2025, status:'ship',
     formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['infer'],
     mem:128, memType:'HBM2e', bw:3.7, fp16:1835, fp8:1835, fp4:null, int8:1835,
     link:'24×200GbE · 4.8 Tb/s', power:600,
-    pos:'PCIe 形态，标准服务器部署', note:'与 OAM 版同显存 / 带宽，TDP 降至 600W。', src:'official'
+    pos:'PCIe 形态，标准服务器部署', note:'与 OAM 版同显存 / 带宽，TDP 降至 600W。', nv:{ref:'H100 PCIe / H200 SXM', why:'媒体口径：与 OAM 版同算力同显存、TDP 降至 600W，PCIe 形态近 H100 PCIe 但 128GB 显存更大；Intel 官方推理对标 H100/H200，主打标准服务器低成本部署。'}, src:'official'
   },
   {
     id:'atlas-300t-a2', name:'Atlas 300T A2', vendor:'huawei', arch:'达芬奇（910B4）', year:2024, status:'ship',
     formLabel:'PCIe 5.0 双宽全高', forms:['PCIe'], scenes:['train'],
     mem:32, memType:'HBM', bw:0.8, fp16:280, fp8:null, fp4:null, int8:560,
     link:'PCIe 5.0 ×16 + 1×200GE RoCE', power:350,
-    pos:'昇腾训练标卡，8 卡服务器组网', note:'华为公开规格：32GB HBM / 800GB/s、FP16 280 TFLOPS、INT8 560 TOPS、FP32 75 TFLOPS、PCIe 5.0 ×16、板载 200GE RoCE。功耗官方彩页为最大 350W，渠道参数另有 300W 口径。', src:'official'
+    pos:'昇腾训练标卡，8 卡服务器组网', note:'华为公开规格：32GB HBM / 800GB/s、FP16 280 TFLOPS、INT8 560 TOPS、FP32 75 TFLOPS、PCIe 5.0 ×16、板载 200GE RoCE。功耗官方彩页为最大 350W，渠道参数另有 300W 口径。注：官网加速卡产品页现已不列出 300T A2（仅列 300I A2 / Duo / V / V Pro / I Pro / 350 / 150），本行规格取自官网用户指南与早期彩页。', nv:{ref:'L40S / H20', why:'媒体口径：昇腾 910B 系列对标 A100/A800（页面未收录）；按规格 FP16 280、350W 近 L40S（362/350W），32GB 显存小于两者。'}, src:'official'
   },
   {
     id:'atlas-300i-a2', name:'Atlas 300I A2', vendor:'huawei', arch:'达芬奇（910B4）', year:2024, status:'ship',
     formLabel:'PCIe 5.0 双宽全高', forms:['PCIe'], scenes:['infer'],
     mem:64, memType:'HBM', bw:1.6, fp16:280, fp8:null, fp4:null, int8:560,
     link:'PCIe 5.0 ×16（无卡间互联）', power:350,
-    pos:'64GB 大显存推理标卡，长上下文', note:'官网技术规格：形态为双槽位全高全长 PCIe 卡，AI 算力 INT8 560 TOPS / FP16 280 TFLOPS，内存规格同时提供 32GB HBM（带宽 0.8TB/s）与 64GB HBM（带宽 1.6TB/s）两档，PCIe 5.0，最大 350W，被动风冷；本行为 64GB 版。', src:'official'
+    pos:'64GB 大显存推理标卡，长上下文', note:'官网技术规格：形态为双槽位全高全长 PCIe 卡，AI 算力 INT8 560 TOPS / FP16 280 TFLOPS，内存规格同时提供 32GB HBM（带宽 0.8TB/s）与 64GB HBM（带宽 1.6TB/s）两档，PCIe 5.0，最大 350W，被动风冷；本行为 64GB 版。', nv:{ref:'L40S / H20', why:'媒体口径：910B 系列对标 A100/A800（页面未收录）；FP16 280、350W 近 L40S，64GB 显存介于 L40S 48GB 与 H20 96GB。'}, src:'official'
   },
   {
     id:'atlas-300i-a2-32g', name:'Atlas 300I A2（32GB）', vendor:'huawei', arch:'达芬奇（910B4）', year:2024, status:'ship',
     formLabel:'PCIe 5.0 双宽全高', forms:['PCIe'], scenes:['infer'],
     mem:32, memType:'HBM', bw:0.8, fp16:280, fp8:null, fp4:null, int8:560,
     link:'PCIe 5.0 ×16（无卡间互联）', power:350,
-    pos:'32GB 版推理标卡，带宽减半', note:'与 64GB 版同算力、同 350W，显存容量与带宽为 32GB / 0.8TB/s，官网列在同一张规格表的两个内存档位，故拆成两行而不是取中间值。', src:'official'
+    pos:'32GB 版推理标卡，带宽减半', note:'与 64GB 版同算力、同 350W，显存容量与带宽为 32GB / 0.8TB/s，官网列在同一张规格表的两个内存档位，故拆成两行而不是取中间值。', nv:{ref:'L40S / H20', why:'媒体口径：910B 系列对标 A100/A800（页面未收录）；与 64GB 版同算力，32GB 显存、FP16 280、350W 近 L40S。'}, src:'official'
   },
   {
     id:'atlas-350', name:'Atlas 350 加速卡', vendor:'huawei', arch:'达芬奇（Ascend 950PR）', year:2026, status:'ship',
     formLabel:'PCIe 5.0 双宽全高（OH FL DW）', forms:['PCIe'], scenes:['infer'],
     mem:112, memType:'HBM', bw:1.4, fp16:425, fp8:804, fp4:1561, int8:804,
     link:'灵衢 UB：2 卡 424 / 4 卡 318 GB/s', power:600,
-    pos:'950PR 推理卡，mxFP4 原生', note:'官网技术规格：形态扩高×全长×双宽 PCIe 标卡，AI 算力 mxFP4 1561、mxFP8/HiF8/mxFP6/INT8 804、FP16/BF16 425 TFLOPS（官方标注为理论值），112GB HBM / 1.4TB/s 支持 ECC，PCIe 5.0×16 双向 128GBps，卡间灵衢互联 2 卡全互连双向 424GB/s、4 卡 318GB/s，最大功耗 ≤600W，被动散热。', src:'official'
+    pos:'950PR 推理卡，mxFP4 原生', note:'官网技术规格：形态扩高×全长×双宽 PCIe 标卡，AI 算力 mxFP4 1561、mxFP8/HiF8/mxFP6/INT8 804、FP16/BF16 425 TFLOPS（官方标注为理论值），112GB HBM / 1.4TB/s 支持 ECC，PCIe 5.0×16 双向 128GBps，卡间灵衢互联 2 卡全互连双向 424GB/s、4 卡 318GB/s，最大功耗 ≤600W，被动散热。', nv:{ref:'H20', why:'媒体口径：950PR 单卡算力约 H20 三倍（FP16 425 vs 148），112GB 显存超 H20 96GB，原生 mxFP4，定位推理。'}, src:'official'
   },
   {
     id:'atlas-150', name:'Atlas 150 加速卡', vendor:'huawei', arch:'达芬奇（Ascend 950PR）', year:2026, status:'ship',
     formLabel:'PCIe 5.0 双宽全高（OH FL DW）', forms:['PCIe'], scenes:['infer'],
     mem:84, memType:'HBM', bw:1.4, fp16:425, fp8:804, fp4:1561, int8:804,
     link:'灵衢 UB：2 卡 424 / 4 卡 318 GB/s', power:600,
-    pos:'84GB 版，同算力小显存', note:'与 Atlas 350 同一颗 Ascend 950PR、算力与 1.4TB/s 带宽、≤600W 全部一致，只有 HBM 容量为 84GB；官网分成两个型号页，故各占一行。', src:'official'
+    pos:'84GB 版，同算力小显存', note:'与 Atlas 350 同一颗 Ascend 950PR、算力与 1.4TB/s 带宽、≤600W 全部一致，只有 HBM 容量为 84GB；官网分成两个型号页，故各占一行。', nv:{ref:'H20', why:'媒体口径：950PR 算力约 H20 三倍（FP16 425 vs 148）；84GB 显存略低于 H20 96GB，其余同 Atlas 350。'}, src:'official'
   },
   {
     id:'atlas-300i-duo', name:'Atlas 300I Duo', vendor:'huawei', arch:'达芬奇（2×310P）', year:2022, status:'ship',
     formLabel:'PCIe 4.0 单槽全高', forms:['PCIe'], scenes:['infer'],
     mem:96, memType:'LPDDR4X', bw:0.408, fp16:140, fp8:null, fp4:null, int8:280,
     link:'PCIe 4.0 ×16（无卡间互联）', power:150,
-    pos:'低功耗高内存推理卡，视频 / OCR', note:'官网技术规格：2×310P，AI 算力 INT8 280 TOPS / FP16 140 TFLOPS，LPDDR4X 提供 96GB 与 48GB 两档、总带宽同为 408GB/s，PCIe 4.0 ×16 单槽位全高全长，功耗 150W；两档算力带宽功耗相同，只在容量上分档。', src:'official'
+    pos:'低功耗高内存推理卡，视频 / OCR', note:'官网技术规格：2×310P，AI 算力 INT8 280 TOPS / FP16 140 TFLOPS，LPDDR4X 提供 96GB 与 48GB 两档、总带宽同为 408GB/s，PCIe 4.0 ×16 单槽位全高全长，功耗 150W；两档算力带宽功耗相同，只在容量上分档。', nv:{ref:'H20', why:'编辑按规格匹配：FP16 140≈H20 148、96GB 容量相同；但 LPDDR4X 带宽 0.408TB/s 远低于 H20 4TB/s、150W 低功耗，定位视频/OCR 推理。'}, src:'official'
   },
   {
     id:'atlas-300i-pro', name:'Atlas 300I Pro', vendor:'huawei', arch:'达芬奇（310P）', year:2022, status:'ship',
     formLabel:'PCIe 4.0 半高半长', forms:['PCIe'], scenes:['infer'],
     mem:24, memType:'LPDDR4X', bw:0.2048, fp16:70, fp8:null, fp4:null, int8:140,
     link:'PCIe 4.0 ×16（无卡间互联）', power:72,
-    pos:'72W 半高卡，轻量推理', note:'官网：1×310P、24GB LPDDR4X、204.8GB/s、FP16 70 TFLOPS、INT8 140 TOPS、最大 72W、半高半长单槽。', src:'official'
+    pos:'72W 半高卡，轻量推理', note:'官网：1×310P、24GB LPDDR4X、204.8GB/s、FP16 70 TFLOPS、INT8 140 TOPS、最大 72W、半高半长单槽。', nv:{ref:'L4', why:'编辑按规格匹配：24GB 显存、72W、半高半长单槽与 L4 几乎一致，FP16 70≈L4 60.5†，轻量推理。'}, src:'official'
+  },
+  {
+    id:'atlas-300v', name:'Atlas 300V', vendor:'huawei', arch:'达芬奇（310P）', year:null, status:'ship',
+    formLabel:'PCIe 半高半长单槽', forms:['PCIe'], scenes:['infer'],
+    mem:24, memType:'LPDDR4X', bw:0.2048, fp16:50, fp8:null, fp4:null, int8:100,
+    link:'PCIe ×16（无卡间互联）', power:null,
+    pos:'视频解析卡，100 路 1080P 实时分析', note:'官网技术规格：100 TOPS INT8 / 50 TFLOPS FP16，LPDDR4X 24GB / 204.8GB/s 支持 ECC，单槽位半高半长 PCIe 卡，板载 8 核 1.9GHz CPU；面向视频解析，支持 100 路 1080P 25FPS 实时分析与 JPEG/视频硬件编解码。整卡功耗官网产品页未列出。', nv:{ref:'L4', why:'编辑按规格匹配：24GB 半高单槽视频解析卡，形态/定位近 L4 边缘视频推理；FP16 50 低于 L4 60.5†，整卡功耗未公布。'}, src:'official'
+  },
+  {
+    id:'atlas-300v-pro', name:'Atlas 300V Pro', vendor:'huawei', arch:'达芬奇（310P）', year:null, status:'ship',
+    formLabel:'PCIe 4.0 半高半长', forms:['PCIe'], scenes:['infer'],
+    mem:48, memType:'LPDDR4X', bw:0.2048, fp16:70, fp8:null, fp4:null, int8:140,
+    link:'PCIe 4.0 ×16（无卡间互联）', power:72,
+    pos:'48GB 视频解析卡，128 路 1080P', note:'官网技术规格：140 TOPS INT8 / 70 TFLOPS FP16，LPDDR4X 48GB / 204.8GB/s，PCIe 4.0 ×16，最大 72W，半高半长单槽（169.5×68.9mm）；面向视频解析，H.264/H.265 硬件编解码 128 路 1080P 30FPS。与 300I Pro 同算力同功耗，显存翻倍至 48GB。', nv:{ref:'L4 / L40S', why:'编辑按规格匹配：FP16 70、72W 半高近 L4，48GB 显存同 L40S；视频解析定位，算力远低于 L40S 362。'}, src:'official'
   },
   {
     id:'ascend910c', name:'昇腾 910C', vendor:'huawei', arch:'达芬奇（双 die）', year:2025, status:'ship',
     formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
     mem:128, memType:'HBM2e', bw:3.2, fp16:800, fp8:null, fp4:null, int8:1600,
     link:'HCCS 784 + UB 392 GB/s', power:750,
-    pos:'双 die 旗舰，CloudMatrix 384 超节点', note:'华为未公开 910C 单卡规格页，官方材料只到 Atlas 900 A3 SuperPoD / CloudMatrix 384 整机；显存、算力与功耗为媒体与研报口径，区间 96–128GB、310–750W。', src:'media'
+    pos:'双 die 旗舰，CloudMatrix 384 超节点', note:'华为未公开 910C 单卡规格页，官方材料只到 Atlas 900 A3 SuperPoD / CloudMatrix 384 整机；显存、算力与功耗为媒体与研报口径，区间 96–128GB、310–750W。', nv:{ref:'H100 SXM5', why:'媒体口径：理论规格对标 H100（FP16 800 vs 989.5、128GB 超 H100 80GB），综合实测约 H200 六至七成；单卡规格官方未公开。'}, src:'media'
   },
   {
     id:'mlu590', name:'思元 590（MLU590）', vendor:'cambricon', arch:'MLUarch05', year:2024, status:'ship',
     formLabel:'PCIe 5.0 / OAM', forms:['PCIe','OAM'], scenes:['train','infer'],
     mem:96, memType:'HBM2e', bw:2.0, fp16:256, fp8:null, fp4:null, int8:512,
     link:'MLU-Link 3.0', power:350,
-    pos:'国产训推，推理性价比', note:'厂商未公开完整规格，取第三方汇总；另有 345 TFLOPS FP16 口径。', src:'media'
+    pos:'国产训推，推理性价比', note:'厂商未公开完整规格，取第三方汇总；另有 345 TFLOPS FP16 口径。', nv:{ref:'H20 / L40S', why:'媒体口径：对标 A100（页面未收录），综合性能约 A100 七至九成；96GB 显存同 H20、FP16 256 介于 H20 148 与 L40S 362。'}, src:'media'
   },
   {
     id:'mlu690', name:'思元 690（MLU690）', vendor:'cambricon', arch:'MLUarch（双 die）', year:2026, status:'ship',
     formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
     mem:196, memType:'HBM3', bw:3.35, fp16:700, fp8:null, fp4:null, int8:2800,
     link:'MLU-Link · 890 GB/s', power:450,
-    pos:'196GB 双 die，国产大显存', note:'FP16 700+ / INT8 2,800+；功耗 400–500W 为报道区间。', src:'media'
+    pos:'196GB 双 die，国产大显存', note:'FP16 700+ / INT8 2,800+；功耗 400–500W 为报道区间。', nv:{ref:'H100 SXM5 / H200 SXM', why:'媒体口径：对标 H100 约八至八成五（FP16 700+）；196GB 显存超 H200 141GB，双 die。'}, src:'media'
   },
   {
     id:'p800', name:'昆仑芯 P800', vendor:'kunlun', arch:'XPU-P', year:2024, status:'ship',
     formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
     mem:96, memType:'HBM3', bw:2.4, fp16:345, fp8:null, fp4:null, int8:820,
     link:'XCCL', power:400,
-    pos:'百度 XPU，文心 / 云推理', note:'公开规格有限；支持 FP8，但未公布具体峰值。', src:'media'
+    pos:'百度 XPU，文心 / 云推理', note:'公开规格有限；支持 FP8，但未公布具体峰值。', nv:{ref:'L40S / H20', why:'媒体口径：对标 A800/A100（页面未收录），FP16 345 为 H20 2.3 倍、推理实测超 A100；96GB 显存同 H20、算力近 L40S 362，定位 H20 之上。'}, src:'media'
   },
   {
     id:'s5000', name:'MTT S5000', vendor:'moore', arch:'MUSA 平湖（PH100）', year:2025, status:'ship',
     formLabel:'OAM / PCIe', forms:['OAM','PCIe'], scenes:['train','infer'],
     mem:80, memType:'HBM（类型未公开）', bw:1.6, fp16:400, fp8:1000, fp4:null, int8:800,
     link:'MTLink 2.0 · 784 GB/s', power:500,
-    pos:'全功能 GPU，训推一体', note:'液冷版 FP8 1,000 / 风冷 920 TFLOPS；FP16 400、INT8 800。', src:'official'
+    pos:'全功能 GPU，训推一体', note:'液冷版 FP8 1,000 / 风冷 920 TFLOPS；FP16 400、INT8 800。', nv:{ref:'H100 SXM5', why:'媒体口径：全面对标 H100（80GB 显存相同、FP8 1000 vs H100 1979），推理实测约 H100 七成；显存带宽 1.6TB/s 低于 H100 3.35。'}, src:'official'
   },
   {
     id:'c500', name:'曦云 C500', vendor:'metax', arch:'XCORE', year:2024, status:'ship',
     formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['infer'],
     mem:64, memType:'HBM2e', bw:1.8, fp16:280, fp8:null, fp4:null, int8:560,
     link:'MetaXLink（2 / 4 卡）', power:350,
-    pos:'PCIe 通用 GPU，CUDA 迁移', note:'官方产品页只写「64GB 高带宽显存、全高全长双槽位 PCIe 板卡、最大功耗 350W」，未公布算力与显存带宽；FP16 280 / INT8 560 / 1.8TB/s 取第三方汇总口径。', src:'mixed', derived:['fp16','int8']
+    pos:'PCIe 通用 GPU，CUDA 迁移', note:'官方产品页只写「64GB 高带宽显存、全高全长双槽位 PCIe 板卡、最大功耗 350W」，未公布算力与显存带宽；FP16 280 / INT8 560 / 1.8TB/s 取第三方汇总口径。', nv:{ref:'L40S / H20', why:'媒体口径：对标 A100（页面未收录）；350W、FP16 280† 近 L40S（362/350W），64GB 显存介于 L40S 48GB 与 H20 96GB。'}, src:'mixed', derived:['fp16','int8']
   },
   {
     id:'c600', name:'曦云 C600', vendor:'metax', arch:'XCORE 1.5', year:2026, status:'ship',
-    formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['train','infer'],
+    formLabel:'OAM 2.0 模组', forms:['OAM'], scenes:['train','infer'],
     mem:144, memType:'HBM3e', bw:1.6, fp16:330, fp8:null, fp4:null, int8:null,
-    link:'MetaXLink', power:null,
-    pos:'144GB 大显存，国产 H200 对标', note:'FP8 峰值约 1 PFLOPS（报道），整卡功耗未公开。', src:'media'
+    link:'MetaXLink / MetaXLink-E · 128 卡超节点', power:1000,
+    pos:'128 卡超节点，OAM 2.0 / 1000W', note:'官方产品页：符合 OAM2.0 规范的扣卡式模组，最大功耗 1000W，超低时延 MetaXLink + 可扩展 MetaXLink-E 接口、高达 128 卡规模超节点；官方只写「超大容量高带宽显存」，未给容量/带宽/算力数值。144GB HBM3e / 1.6TB/s / FP16 330 TFLOPS（FP8 约 1 PFLOPS）为媒体口径。', nv:{ref:'H200 SXM', why:'媒体口径：144GB HBM3e≈H200 141GB；OAM2.0/1000W 模组，FP16 330 为媒体口径、低于 H200 989.5。'}, src:'mixed'
+  },
+  {
+    id:'c550', name:'曦云 C550', vendor:'metax', arch:'XCORE', year:null, status:'ship',
+    formLabel:'OAM 1.5 / 2.0 模组', forms:['OAM'], scenes:['train','infer'],
+    mem:64, memType:'HBM', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'MetaXLink · 8 卡全互连 896 GB/s', power:450,
+    pos:'OAM 模组，8 卡 896GB/s 超节点', note:'官方产品页：单模组 64GB 高带宽显存（全链路 ECC），MetaXLink 8 卡全互连带宽 896GB/s，符合 OAM1.5 / OAM2.0 规范的扣卡式模组，最大功耗 450W；算力与显存带宽官方未公布。用于 Shanghai Cube 液冷整机柜与 3D Mesh 超节点。', nv:{ref:'H100 SXM5', why:'编辑按规格匹配：OAM 模组、64GB 显存、8 卡全互连，形态近 H100 SXM5；450W 低于 H100 700W，算力官方未公布。'}, src:'official'
+  },
+  {
+    id:'c500x', name:'曦云 C500X', vendor:'metax', arch:'XCORE', year:null, status:'ship',
+    formLabel:'PCIe 定制高度（光互连）', forms:['PCIe'], scenes:['train','infer'],
+    mem:64, memType:'HBM', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'MetaXLink 光互连 · 16–64 卡 Scale-up', power:350,
+    pos:'光链超节点，16–64 卡 Scale-up', note:'官方产品页：单卡 64GB 高带宽显存（全链路 ECC），MetaXLink 光互连接口支持 16–64 卡 Scale-up 拓扑，定制高度 PCIe 板卡，最大功耗 350W；算力与显存带宽官方未公布。用于曦云 C500X 光链超节点。', nv:{ref:'L40S', why:'编辑按规格匹配：350W PCIe 板卡同 L40S 功耗，64GB 显存超 L40S 48GB；光互连 16–64 卡，算力官方未公布。'}, src:'official'
+  },
+  {
+    id:'c588', name:'曦云 C588', vendor:'metax', arch:'XCORE', year:null, status:'ship',
+    formLabel:'OAM 2.0 模组', forms:['OAM'], scenes:['train','infer'],
+    mem:128, memType:'HBM', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'MetaXLink · 8 卡全互连 896 GB/s', power:850,
+    pos:'128GB OAM 模组，850W', note:'官方产品页：单模组 128GB 高带宽显存（全链路 ECC），MetaXLink 8 卡全互连 896GB/s，符合 OAM2.0 规范的扣卡式模组，最大功耗 850W；算力与显存带宽官方未公布。', nv:{ref:'H100 SXM5 / B200 SXM', why:'编辑按规格匹配：128GB OAM2.0 模组、850W，介于 H100 SXM5（80GB/700W）与 B200（180GB/1000W）之间；算力官方未公布。'}, src:'official'
+  },
+  {
+    id:'n100', name:'曦思 N100', vendor:'metax', arch:'XCORE（推理）', year:null, status:'ship',
+    formLabel:'PCIe 半高半长单槽', forms:['PCIe'], scenes:['infer'],
+    mem:16, memType:'HBM', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'PCIe（无卡间互联）', power:70,
+    pos:'70W 半高推理卡，视频编解码', note:'官方产品页：面向智慧应用场景的智算推理 GPU，16GB 高带宽显存，半高半长单槽位 PCIe 板卡，最大功耗 70W，强调视频编解码能力；算力与显存带宽官方未公布。', nv:{ref:'L4', why:'编辑按规格匹配：70W 半高半长单槽推理卡，形态/功耗近 L4（72W）；16GB 显存小于 L4 24GB，算力官方未公布。'}, src:'official'
+  },
+  {
+    id:'n260', name:'曦思 N260', vendor:'metax', arch:'XCORE（推理）', year:null, status:'ship',
+    formLabel:'PCIe 双槽', forms:['PCIe'], scenes:['infer'],
+    mem:64, memType:'HBM', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'PCIe（无卡间互联）', power:225,
+    pos:'64GB 双槽推理卡，225W', note:'官方产品页：自研 GPGPU 架构，64GB 高带宽显存，全高全长双槽位 PCIe 板卡，最大功耗 225W；算力与显存带宽官方未公布。', nv:{ref:'L40S', why:'编辑按规格匹配：64GB 双槽 PCIe 推理卡，定位近 L40S；225W 低于 L40S 350W，算力官方未公布。'}, src:'official'
+  },
+  {
+    id:'n300', name:'曦思 N300', vendor:'metax', arch:'XCORE（推理）', year:null, status:'ship',
+    formLabel:'PCIe 双槽', forms:['PCIe'], scenes:['infer'],
+    mem:null, memType:'HBM', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'MetaXLink（4 卡）', power:500,
+    pos:'500W 双槽，MetaXLink 4 卡', note:'官方产品页：单卡配备高带宽显存（未给容量），MetaXLink 支持 4 卡高速卡间互连，全高全长双槽位 PCIe 板卡，最大功耗 500W；显存容量、算力与带宽官方未公布。', nv:{ref:'L40S', why:'编辑按规格匹配：500W 双槽 PCIe 推理卡，形态近 L40S 但功耗更高；显存容量与算力官方未公布，无法按算力对标。'}, src:'official'
   },
   {
     id:'br100', name:'壁仞 BR100', vendor:'biren', arch:'BIRENSUPA（Chiplet）', year:2022, status:'ship',
     formLabel:'OAM', forms:['OAM'], scenes:['train','infer'],
     mem:64, memType:'HBM2e', bw:2.3, fp16:1024, fp8:null, fp4:null, int8:2048,
     link:'BLink（8 卡）', power:550,
-    pos:'Chiplet 通用 GPU，纸面算力高', note:'BF16 1,024 TFLOPS / INT8 2,048 TOPS；量产与生态有限。', src:'official'
+    pos:'Chiplet 通用 GPU，纸面算力高', note:'BF16 1,024 TFLOPS / INT8 2,048 TOPS 为发布时官方口径；官网产品线现已切换为壁砺 106 / 166 系列，BR100 不再单列，量产与生态有限。', nv:{ref:'H100 SXM5', why:'官方算力 + 媒体对标：发布 BF16 1024 TFLOPS≈H100 SXM5 989.5，媒体称算力接近 H100；64GB 显存小于 H100 80GB，生态/量产有限。'}, src:'official'
+  },
+  {
+    id:'br106b', name:'壁砺 106B', vendor:'biren', arch:'BIRENSUPA', year:null, status:'ship',
+    formLabel:'PCIe 全高全长双宽', forms:['PCIe'], scenes:['train','infer'],
+    mem:null, memType:'未公开', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'未披露', power:300,
+    pos:'PCIe 训推卡，300W', note:'官网：全高全长双宽 PCIe 板卡，峰值功耗 300W，面向大模型 / 多模态 AIGC / 图像 / 语音 / NLP / 推荐等训练、微调与推理；算力、显存、带宽与互连规格官方未公布。', nv:{ref:'L40S / H100 PCIe', why:'编辑按规格匹配：300W 全高全长双宽 PCIe 训推卡，形态/功耗近 L40S 与 H100 PCIe（均 350W）；算力/显存官方未公布。'}, src:'official'
+  },
+  {
+    id:'br106m', name:'壁砺 106M', vendor:'biren', arch:'BIRENSUPA', year:null, status:'ship',
+    formLabel:'OAM（风冷）', forms:['OAM'], scenes:['train'],
+    mem:null, memType:'未公开', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'未披露', power:400,
+    pos:'风冷 OAM 训练模组，400W', note:'官网：风冷 OAM 模组，峰值功耗 400W，面向人工智能训练场景；算力、显存、带宽与互连规格官方未公布。', nv:{ref:'H100 SXM5', why:'编辑按规格匹配：风冷 OAM 训练模组，形态近 H100 SXM5；400W 低于 H100 700W，算力/显存官方未公布。'}, src:'official'
+  },
+  {
+    id:'br166c', name:'壁砺 166C', vendor:'biren', arch:'BIRENSUPA', year:null, status:'ship',
+    formLabel:'PCIe 全高全长双宽（290mm）', forms:['PCIe'], scenes:['infer'],
+    mem:null, memType:'未公开', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'未披露', power:300,
+    pos:'PCIe 高性能推理卡，300W', note:'官网：数据中心高性能推理 AI 加速卡，全高全长（290mm）双宽 PCIe 板卡，峰值功耗 300W，适配 4–8U PCIe GPU 服务器；算力、显存、带宽与互连规格官方未公布。', nv:{ref:'L40S', why:'编辑按规格匹配：300W 全高全长双宽 PCIe 推理卡，形态/功耗近 L40S；算力/显存官方未公布。'}, src:'official'
+  },
+  {
+    id:'br166l', name:'壁砺 166L', vendor:'biren', arch:'BIRENSUPA', year:null, status:'ship',
+    formLabel:'OAM（冷板液冷）', forms:['OAM'], scenes:['train','infer'],
+    mem:null, memType:'未公开', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'未披露', power:600,
+    pos:'液冷 OAM 训推一体，600W', note:'官网：数据中心训推一体 AI 加速液冷 OAM 模组（冷板式液冷），峰值功耗 600W，适配标准 OAM V1.X GPU 服务器；算力、显存、带宽与互连规格官方未公布。', nv:{ref:'H100 SXM5 / H200 SXM', why:'编辑按规格匹配：冷板液冷 OAM 训推模组，形态近 H100/H200 SXM；600W，算力/显存官方未公布。'}, src:'official'
+  },
+  {
+    id:'br166m', name:'壁砺 166M', vendor:'biren', arch:'BIRENSUPA', year:null, status:'ship',
+    formLabel:'OAM 4U V1.1（风冷）', forms:['OAM'], scenes:['train','infer'],
+    mem:null, memType:'未公开', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'未披露', power:550,
+    pos:'风冷 OAM 训推一体，550W', note:'官网：数据中心训推一体 AI 加速风冷 OAM 模组（4U OAM V1.1），峰值功耗 550W，适配标准 OAM V1.X GPU 服务器；算力、显存、带宽与互连规格官方未公布。', nv:{ref:'H100 SXM5', why:'编辑按规格匹配：风冷 OAM 训推模组（4U V1.1），形态近 H100 SXM5；550W，算力/显存官方未公布。'}, src:'official'
   },
   {
     id:'tiangai150', name:'天数 天垓 150', vendor:'iluvatar', arch:'ivcore11', year:2024, status:'ship',
     formLabel:'PCIe 4.0 双槽', forms:['PCIe'], scenes:['train','infer'],
     mem:64, memType:'HBM2e', bw:1.2, fp16:192, fp8:null, fp4:null, int8:384,
     link:'PCIe 4.0（无卡间互联）', power:350,
-    pos:'国产通用 GPU，CUDA 兼容', note:'采购参数：FP16 ≥192 TFLOPS，TDP ≤350W。', src:'official'
+    pos:'国产通用 GPU，CUDA 兼容', note:'采购参数：FP16 ≥192 TFLOPS，TDP ≤350W。', nv:{ref:'L40S / H20', why:'编辑按规格匹配：350W PCIe 双槽同 L40S 功耗，FP16 192 介于 H20 148 与 L40S 362、64GB 显存；CUDA 兼容通用 GPU。'}, src:'official'
+  },
+  {
+    id:'tiangai300', name:'天数 天垓 300', vendor:'iluvatar', arch:'天枢', year:2026, status:'ramp',
+    formLabel:'未披露', forms:[], scenes:['train','infer'],
+    mem:144, memType:'HBM3', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
+    link:'片间高速互联 · IXL144 超节点（144 卡）', power:null,
+    pos:'天枢架构旗舰，144GB 对标 H200', note:'媒体口径（官网产品页仅 banner、无规格表）：2026-07-19 WAIC 发布，天枢架构 + 新一代 Tensor Core，144GB 显存，原生支持 FP4/FP8/BF16/FP16，高速片间互联，IXL144 超节点单柜 144 卡；第三方实测 PD 分离单卡端到端吞吐约 H200 的 1.05 倍。算力数值、显存带宽、形态与整卡功耗官方未公布（百科称 FP16 >1000 TFLOPS / INT8 >2000 TOPS / 带宽 >4TB/s / 功耗 <600W，未经官方证实，表中不取）。', nv:{ref:'H200 SXM', why:'媒体口径：144GB≈H200 141GB，第三方实测 PD 分离单卡吞吐约 H200 1.05 倍；算力/带宽/功耗官方未公布。'}, src:'media'
   },
   {
     id:'k100', name:'海光 DCU K100', vendor:'hygon', arch:'深算 3.0', year:2025, status:'ship',
     formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['infer'],
     mem:64, memType:'HBM2e', bw:0.896, fp16:196, fp8:null, fp4:null, int8:392,
     link:'PCIe 5.0（无卡间互联）', power:350,
-    pos:'海光 DCU，信创推理 / 科学计算', note:'K100 AI 版：FP16 196 / INT8 392；标准版 FP16 100。', src:'media'
+    pos:'海光 DCU，信创推理 / 科学计算', note:'K100 AI 版：FP16 196 / INT8 392；标准版 FP16 100。', nv:{ref:'L40S / H20', why:'媒体口径：海光 DCU 性能上限约 A100 级（页面未收录）；FP16 196 介于 H20 148 与 L40S 362、350W 同 L40S、64GB 显存。'}, src:'media'
   },
   {
     id:'zhenwu810e', name:'真武 810E（PPU）', vendor:'t-head', arch:'PPU（自研并行架构）', year:2024, status:'ship',
     formLabel:'PCIe 5.0 双槽', forms:['PCIe'], scenes:['train','infer'],
     mem:96, memType:'HBM2e', bw:2.7, fp16:120, fp8:null, fp4:null, int8:null,
     link:'ICN 片间互联 · 700 GB/s（7 端口）', power:400,
-    pos:'阿里云训推一体，整体对标 H20', note:'官方规格表仅三项：96GB HBM2e、内存带宽 2.7TB/s、片间互联 700GB/s（7 个 ICN 端口）；单卡 FLOPS 与整卡功耗官方未公布，表中 FP16 120 TFLOPS 是按 M890 规格回推的估算值、400W 与 PCIe 5.0×16 双槽形态为媒体口径，均非官方数据。2024Q2 推出，2026-01 官网上线。', src:'mixed', derived:['fp16']
+    pos:'阿里云训推一体，整体对标 H20', note:'官方规格表仅三项：96GB HBM2e、内存带宽 2.7TB/s、片间互联 700GB/s（7 个 ICN 端口）；单卡 FLOPS 与整卡功耗官方未公布，表中 FP16 120 TFLOPS 是按 M890 规格回推的估算值、400W 与 PCIe 5.0×16 双槽形态为媒体口径，均非官方数据。2024Q2 推出，2026-01 官网上线。', nv:{ref:'H20', why:'媒体口径：整体对标 H20，96GB 显存、400W、PCIe 5.0 双槽与 H20 一致；FP16 120† 略低于 H20 148（120 为按 M890 回推）。'}, src:'mixed', derived:['fp16']
   },
   {
     id:'zhenwu-m890', name:'真武 M890', vendor:'t-head', arch:'PPU（第二代）', year:2026, status:'ship',
     formLabel:'未披露', forms:[], scenes:['train','infer'],
     mem:144, memType:'HBM（类型未公开）', bw:null, fp16:600, fp8:null, fp4:null, int8:null,
     link:'ICN Switch 1.0 · 800 GB/s', power:null,
-    pos:'磐久 AL128 超节点，810E 三倍性能', note:'官方公布 144GB HBM、800GB/s 互联、3 倍于 810E，配合 ICN Switch 1.0 实现 64 卡全带宽；FP16 600 TFLOPS 为第三方收录，官方未公布绝对算力 / 显存带宽 / 功耗。2026-05 发布，已进入运营商智算采购。', src:'mixed', derived:['fp16']
+    pos:'磐久 AL128 超节点，810E 三倍性能', note:'官方公布 144GB HBM、800GB/s 互联、3 倍于 810E，配合 ICN Switch 1.0 实现 64 卡全带宽；FP16 600 TFLOPS 为第三方收录，官方未公布绝对算力 / 显存带宽 / 功耗。2026-05 发布，已进入运营商智算采购。', nv:{ref:'H200 SXM', why:'编辑按规格匹配：144GB 显存≈H200 141GB；FP16 600† 为第三方收录、低于 H100 989.5，官方称性能 3× 810E。'}, src:'mixed', derived:['fp16']
   },
   {
     id:'zhenwu-v900', name:'真武 V900', vendor:'t-head', arch:'PPU（第三代）', year:2026, status:'ramp',
     formLabel:'未披露', forms:[], scenes:['train','infer'],
     mem:216, memType:'HBM（类型未公开）', bw:null, fp16:null, fp8:null, fp4:null, int8:null,
     link:'ICN · 1.2 TB/s', power:null,
-    pos:'216GB 大显存，2027Q1 量产', note:'官方公布 216GB 显存、1,200GB/s 互联、3 倍于 M890，原生支持 FP8 / FP4；绝对算力、显存带宽、功耗与封装均未披露，计划 2027Q1 量产。', src:'official'
+    pos:'216GB 大显存，2027Q1 量产', note:'官方公布 216GB 显存、1,200GB/s 互联、3 倍于 M890，原生支持 FP8 / FP4；绝对算力、显存带宽、功耗与封装均未披露，计划 2027Q1 量产。', nv:{ref:'B200 SXM / B300 SXM', why:'编辑按规格匹配：216GB 显存介于 B200 180GB 与 B300 288GB 之间，原生 FP8/FP4；算力/带宽/功耗未公布，官方称 3× M890、2027Q1 量产。'}, src:'official'
   }
 ];
 const VENDOR_ORDER = ['nvidia','amd','intel','huawei','t-head','cambricon','kunlun','moore','metax','biren','iluvatar','hygon'];
@@ -737,13 +853,13 @@ function eff(c) {
 }
 
 const SORTERS = {
-  default:(a,b) => V_INDEX(a.vendor) - V_INDEX(b.vendor) || b.year - a.year || a.name.localeCompare(b.name, 'zh'),
+  default:(a,b) => V_INDEX(a.vendor) - V_INDEX(b.vendor) || (b.year ?? 0) - (a.year ?? 0) || a.name.localeCompare(b.name, 'zh'),
   compute:(a,b) => (b[state.precision] ?? -1) - (a[state.precision] ?? -1) || SORTERS.default(a,b),
-  mem:(a,b) => b.mem - a.mem,
+  mem:(a,b) => (b.mem ?? -1) - (a.mem ?? -1),
   bw:(a,b) => (b.bw ?? -1) - (a.bw ?? -1),
   power:(a,b) => (a.power ?? 1e9) - (b.power ?? 1e9),
   eff:(a,b) => (eff(b) ?? -1) - (eff(a) ?? -1),
-  year:(a,b) => b.year - a.year || SORTERS.default(a,b)
+  year:(a,b) => (b.year ?? 0) - (a.year ?? 0) || SORTERS.default(a,b)
 };
 
 function visible() {
@@ -827,9 +943,9 @@ function cardHTML(c) {
       ${c.status === 'ramp' ? '<span class="newtag">爬坡</span>' : ''}
     </div>
     <h3>${c.name}</h3>
-    <p class="arch">${c.arch} · ${c.year}</p>
+    <p class="arch">${c.arch} · ${c.year ?? '—'}</p>
     <dl class="specs">
-      <div><dt>显存</dt><dd>${c.mem}<span>GB</span></dd></div>
+      <div><dt>显存</dt><dd>${c.mem == null ? '—' : c.mem + '<span>GB</span>'}</dd></div>
       <div><dt>带宽</dt><dd>${c.bw == null ? '—' : trimZero(c.bw.toFixed(2)) + '<span>TB/s</span>'}</dd></div>
       ${compute}
     </dl>
@@ -887,7 +1003,7 @@ function rowsForState() {
   return [
     {g:'basic', k:'vendor', label:'厂商', get:c => VENDOR_LABEL[c.vendor]},
     {g:'basic', k:'arch', label:'架构', get:c => c.arch},
-    {g:'basic', k:'year', label:'发布年份', get:c => String(c.year)},
+    {g:'basic', k:'year', label:'发布年份', get:c => String(c.year ?? '—')},
     {g:'basic', k:'status', label:'上市状态', get:c => c.status === 'ramp' ? '爬坡 / 初始出货' : '已量产'},
     {g:'basic', k:'form', label:'卡形态', get:c => c.formLabel},
     {g:'basic', k:'pos', label:'定位', get:c => c.pos, wide:true},
@@ -895,7 +1011,7 @@ function rowsForState() {
     {g:'compute', k:'fp8', label:'FP8', unit:'稠密 · TFLOPS', get:c => numCell(c, 'fp8'), raw:c => c.fp8, best:'max'},
     {g:'compute', k:'fp4', label:'FP4', unit:'稠密 · TFLOPS', get:c => numCell(c, 'fp4'), raw:c => c.fp4, best:'max'},
     {g:'compute', k:'int8', label:'INT8', unit:'稠密 · TOPS', get:c => numCell(c, 'int8'), raw:c => c.int8, best:'max'},
-    {g:'memory', k:'mem', label:'显存容量', unit:'GB', get:c => `${c.mem} GB`, raw:c => c.mem, best:'max'},
+    {g:'memory', k:'mem', label:'显存容量', unit:'GB', get:c => c.mem == null ? '—' : `${c.mem} GB`, raw:c => c.mem, best:'max'},
     {g:'memory', k:'memType', label:'显存类型', get:c => c.memType},
     {g:'memory', k:'bw', label:'显存带宽', unit:'TB/s', get:c => fmtBw(c.bw), raw:c => c.bw, best:'max'},
     {g:'link', k:'link', label:'卡间互联', get:c => c.link, wide:true},
@@ -961,7 +1077,7 @@ function renderTable(sel) {
 function updateScrollHint() {
   const wrap = cmpTable.closest('.table-wrap');
   const over = !!wrap && wrap.scrollWidth > wrap.clientWidth + 1;
-  const base = `${selectedCards().length} 款 · 算力口径 ${PREC_LABEL[state.precision]} · 更新 2026-10-30`;
+  const base = `${selectedCards().length} 款 · 算力口径 ${PREC_LABEL[state.precision]} · 更新 2026-11-17`;
   compareSub.textContent = over ? base + ' · 表格可横向滚动' : base;
 }
 
@@ -1081,7 +1197,7 @@ function renderCompare() {
   const sel = selectedCards();
   compareSection.hidden = sel.length < 2;
   if (sel.length < 2) return;
-  compareSub.textContent = `${sel.length} 款 · 算力口径 ${PREC_LABEL[state.precision]} · 更新 2026-10-30`;
+  compareSub.textContent = `${sel.length} 款 · 算力口径 ${PREC_LABEL[state.precision]} · 更新 2026-11-17`;
   renderTable(sel);
   renderScatter();
   renderEff(sel);
@@ -1136,9 +1252,9 @@ function openModal(id) {
     <button class="modal-close" type="button" data-close aria-label="关闭">×</button>
     <div class="m-vendor">${VENDOR_LABEL[c.vendor]}${c.status === 'ramp' ? ' · 爬坡中' : ''}</div>
     <h2>${c.name}</h2>
-    <p class="m-arch">${c.arch} · ${c.year} · ${c.formLabel}</p>
+    <p class="m-arch">${c.arch} · ${c.year ?? '—'} · ${c.formLabel}</p>
     <dl class="m-grid">
-      <div><dt>显存</dt><dd>${c.mem} <small>GB</small></dd></div>
+      <div><dt>显存</dt><dd>${c.mem == null ? '—' : c.mem + ' <small>GB</small>'}</dd></div>
       <div><dt>显存类型</dt><dd>${c.memType}</dd></div>
       <div><dt>显存带宽</dt><dd>${fmtBw(c.bw)}</dd></div>
       ${comp}
@@ -1146,6 +1262,7 @@ function openModal(id) {
       <div><dt>整卡功耗</dt><dd>${c.power == null ? '未公开' : fmtNum(c.power) + ' W'}</dd></div>
       <div><dt>数据来源</dt><dd class="m-small">${SRC_LABEL[c.src]}</dd></div>
     </dl>
+    ${c.nv ? `<div class="m-nv"><span class="m-nv-k">对标 NVIDIA · 规格/定位参考，非性能等价</span><span class="m-nv-ref">${c.nv.ref}</span><p class="m-nv-why">${c.nv.why}</p></div>` : ''}
     <p class="m-pos">${c.pos}</p>
     <p class="m-note">${c.note}</p>
     <div class="m-actions">
@@ -1342,6 +1459,8 @@ window.addEventListener('resize', updateScrollHint);
 
 /* ---------- 模型资源估算 ---------- */
 const MODELS = [
+  {id:'qwen4-max',      group:'通义千问 Qwen4', name:'Qwen4-Max',             total:2400, act:71,
+   src:'官方 · Qwen 团队发布「总参数 2.4 万亿、每 token 激活 71B」，阿里云百炼 2026-11-16 上架，1M 上下文、原生视觉'},
   {id:'qwen38-2t4-a95b', group:'通义千问 Qwen3.8', name:'Qwen3.8-2.4T-A95B（开源）', total:2400, act:95,
    src:'官方 · 阿里云百炼模型列表「总参数 2.4 万亿、每步激活约 950 亿」，2026-08 发布'},
   {id:'qwen38-27b',     group:'通义千问 Qwen3.8', name:'Qwen3.8-27B（Dense）',   total:27,   act:null,
@@ -1370,16 +1489,20 @@ const MODELS = [
    src:'媒体口径 · 总参数约 743–744B、每 token 激活约 39–40B，智谱官网未公布架构数值'},
   {id:'glm-53-flash',   group:'智谱 GLM',         name:'GLM-5.3-Flash（开源）',  total:320,  act:18,
    src:'媒体口径 · 320B 总参数 / 18B 激活，MIT 开源，2026-08'},
-  {id:'kimi-k31-pro',   group:'月之暗面 Kimi',    name:'Kimi K3.1 Pro',         total:3000, act:null,
-   src:'官方 · Kimi 开放平台「3 万亿级参数、1M token 上下文」；激活参数官方未公布，估算按总参数取值'},
+  {id:'kimi-k31-pro',   group:'月之暗面 Kimi',    name:'Kimi K3.1 Pro（开源）',  total:2800, act:104,
+   src:'官方 · Kimi 官方模型卡「总参数 2.8 万亿、每 token 激活 104B」，2026-10 发布、11 月开放权重；K3 的后训练升级版'},
   {id:'kimi-k3',        group:'月之暗面 Kimi',    name:'Kimi K3（开源）',        total:2800, act:104,
    src:'官方 · 阿里云百炼「2.8 万亿参数」；激活 104B 为媒体口径'},
   {id:'mm-m31-flash',   group:'MiniMax',          name:'MiniMax M3.1-Flash（开源）', total:428, act:23,
    src:'媒体口径 · 总参数 428B / 激活 23B，2026-10 开源权重'},
   {id:'hy-hy3',         group:'腾讯混元',         name:'混元 Hy3（开源）',        total:295,  act:21,
    src:'媒体口径 · MoE 总参数 295B / 激活 21B，2026-07 开源'},
-  {id:'hy-hy4',         group:'腾讯混元',         name:'混元 Hy4 preview（开源）', total:770,  act:49,
-   src:'媒体口径 · 总参数 770B / 激活 49B，2026-08 开源'},
+  {id:'hy-hy4',         group:'腾讯混元',         name:'混元 Hy4',              total:770,  act:49,
+   src:'媒体口径 · 总参数 770B / 激活 49B，2026-11-04 正式版（preview 2026-08-28 开源），正式版权重计划开源'},
+  {id:'hy-hy4-flash',   group:'腾讯混元',         name:'混元 Hy4 Flash',        total:224,  act:12,
+   src:'媒体口径 · 腾讯混元 Research「总参数 224B（含 64B Engram）/ 激活 12B」，2026-11-16 发布，1M 上下文，权重待开源'},
+  {id:'step5-preview',  group:'阶跃星辰 Step',    name:'Step 5 Preview（开源）', total:600,  act:27,
+   src:'官方 · 阶跃星辰官方发布页 / HF 模型卡「总参数 600B、激活 27B」，2026-09-20 发布、10-15 开源，1M 上下文'},
   {id:'llama-31-8b',    group:'Meta Llama',       name:'Llama-3.1-8B',          total:8.0,  act:null,
    src:'官方 · Meta Llama 3.1 稠密 8B'},
   {id:'llama-33-70b',   group:'Meta Llama',       name:'Llama-3.3-70B',         total:70.6, act:null,
@@ -1531,7 +1654,7 @@ function estHighlightSync() {
 }
 
 function estCardOptions() {
-  const byVendor = [...DATA].sort((a, b) => V_INDEX(a.vendor) - V_INDEX(b.vendor) || b.year - a.year || a.name.localeCompare(b.name, 'zh'));
+  const byVendor = [...DATA].sort((a, b) => V_INDEX(a.vendor) - V_INDEX(b.vendor) || (b.year ?? 0) - (a.year ?? 0) || a.name.localeCompare(b.name, 'zh'));
   const groups = {};
   byVendor.forEach(c => {
     if (c.mem == null) return;
